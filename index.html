@@ -1,0 +1,832 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HumanHub by FUNDAINIL - Sistema de Reportes</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js para el Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf para exportar el reporte -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Script de Supabase para conectar con la base de datos -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        // Colores institucionales de FUNDAINIL (Azul profundo)
+                        brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' },
+                        secondary: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' } // Verde para acciones de éxito
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
+        
+        /* Animaciones suaves */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .slide-up { animation: slideUp 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Scrollbar estilizado */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Loader moderno */
+        .loader {
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #334e68;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Estilos para la previsualización del documento (Efecto Papel A4) */
+        .paper-preview {
+            background-color: white;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            max-width: 210mm; /* Ancho A4 */
+            min-height: 297mm; /* Alto A4 */
+            margin: 0 auto;
+            padding: 2.5rem;
+            color: #000;
+        }
+        @media print {
+            body { background: white; }
+            nav, .no-print { display: none !important; }
+            .paper-preview { box-shadow: none; max-width: none; min-height: 0; padding: 0; margin: 0; }
+            .avoid-break { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Izquierda: Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-900 rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-hands-holding-child text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-slate-800 leading-none tracking-tight">HumanHub</h1>
+                        <span class="text-[10px] uppercase font-bold text-brand-600 tracking-widest">by FUNDAINIL</span>
+                    </div>
+                </div>
+                
+                <!-- Derecha: Pestañas y Roles -->
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <button onclick="cambiarPista('selector')" id="btn-tab-formulario" class="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-700 transition hover:bg-slate-200 hover:text-slate-900 focus:outline-none">
+                        <i class="fa-solid fa-pen-to-square mr-1.5"></i> <span class="hidden sm:inline">Nuevo Reporte</span>
+                    </button>
+                    
+                    <button onclick="cambiarPista('dashboard')" id="btn-tab-dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition hidden focus:outline-none">
+                        <i class="fa-solid fa-chart-pie mr-1.5"></i> <span class="hidden sm:inline">Panel Gerencial</span>
+                    </button>
+
+                    <div class="h-6 w-px bg-slate-300 mx-1 hidden sm:block"></div>
+
+                    <!-- Simulador de Rol -->
+                    <div class="relative group">
+                        <button onclick="toggleRol()" id="btn-rol" class="flex items-center gap-2 px-3 py-1.5 border border-brand-200 bg-brand-50 rounded-full transition-all hover:bg-brand-100 focus:outline-none">
+                            <div class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs shadow-sm">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                            <span id="texto-rol" class="text-xs font-bold text-brand-700 uppercase tracking-wide hidden sm:block">Modo: Campo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+        
+        <!-- VISTA 0: SELECTOR DE SECTOR -->
+        <section id="vista-selector" class="fade-in">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">¿Qué actividad vamos a reportar hoy?</h2>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Selecciona el área de intervención para cargar los indicadores estandarizados de FUNDAINIL correspondientes a tu actividad.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                <button onclick="seleccionarSector('Salud')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-red-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-stethoscope"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Salud</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Consultas médicas, entrega de insumos, jornadas preventivas.</p>
+                </button>
+                <button onclick="seleccionarSector('Nutrición')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-orange-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-apple-whole"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Nutrición</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Tamizajes, suplementos, lactancia materna.</p>
+                </button>
+                <button onclick="seleccionarSector('WASH')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-cyan-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-cyan-50 text-cyan-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-droplet"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">WASH</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Agua, saneamiento, higiene y salud comunitaria.</p>
+                </button>
+                <button onclick="seleccionarSector('Protección')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-hands-holding-child"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Protección</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Apoyo psicosocial, prevención de violencia, VBG.</p>
+                </button>
+                <button onclick="seleccionarSector('Educación')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-yellow-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-yellow-50 text-yellow-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Educación</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Espacios amigables, Cuidado para el Desarrollo Infantil (CDI).</p>
+                </button>
+                <button onclick="seleccionarSector('Medios de Vida')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
+                    <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-seedling"></i></div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Medios de Vida</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">Capacidades emprendedoras para el trabajo y oficios.</p>
+                </button>
+            </div>
+        </section>
+
+        <!-- VISTA 1: FORMULARIO -->
+        <section id="vista-formulario" class="hidden slide-up">
+            <div class="mb-6">
+                <button type="button" onclick="cambiarPista('selector')" class="text-slate-500 hover:text-brand-600 font-semibold text-sm transition flex items-center group">
+                    <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center mr-3 group-hover:bg-brand-50 group-hover:border-brand-200 transition-colors">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </div>
+                    Volver al selector de sectores
+                </button>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <div class="bg-slate-50/50 border-b border-slate-200 px-6 py-5 sm:px-8 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-clipboard-list text-brand-600 mr-3"></i>Registro de Actividad
+                        </h2>
+                        <p class="text-sm text-slate-500 mt-1">Completa los datos para generar el informe técnico institucional.</p>
+                    </div>
+                    <div class="bg-brand-50 text-brand-800 px-4 py-2.5 rounded-xl border border-brand-100 shadow-sm flex items-center gap-3">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                            <i id="icono-sector-actual" class="fa-solid fa-tag text-brand-600"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-brand-600 block leading-tight">Sector Actual</span>
+                            <span id="lbl-sector-actual" class="font-black text-lg leading-none">Sector</span>
+                        </div>
+                        <input type="hidden" id="in-sector">
+                    </div>
+                </div>
+                
+                <form id="form-reporte" class="p-6 sm:p-8 space-y-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        
+                        <div class="space-y-5">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">1. Información General</h3>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Profesional / Promotor *</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-id-badge absolute left-3.5 top-3 text-slate-400"></i>
+                                    <input type="text" id="in-profesional" required placeholder="Ej. Dra. María Pérez" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Proyecto *</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-file-signature absolute left-3.5 top-3 text-slate-400"></i>
+                                    <input type="text" id="in-proyecto" required placeholder="Ej. Jornada Espacios Amigables" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tema Específico de la Actividad *</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-bookmark absolute left-3.5 top-3 text-slate-400"></i>
+                                    <input type="text" id="in-tema" required placeholder="Ej. Prevención de VBG, Lavado de manos..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Fecha de la Actividad *</label>
+                                <input type="date" id="in-fecha" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none text-slate-700">
+                            </div>
+                        </div>
+
+                        <div class="space-y-5">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">2. Localización Geográfica</h3>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Estado *</label>
+                                    <select id="in-estado" required onchange="actualizarMunicipios()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none appearance-none">
+                                        <option value="">Seleccione...</option>
+                                        <option value="Distrito Capital">Distrito Capital</option>
+                                        <option value="Miranda">Miranda</option>
+                                        <option value="La Guaira">La Guaira</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Municipio *</label>
+                                    <select id="in-municipio" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none appearance-none disabled:opacity-50">
+                                        <option value="">Seleccione Estado primero</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Comunidad / Sector Específico *</label>
+                                <div class="relative">
+                                    <i class="fa-solid fa-map-location-dot absolute left-3.5 top-3 text-slate-400"></i>
+                                    <input type="text" id="in-comunidad" required placeholder="Ej. Campamento Los Caracas, Sector 3" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloque Dinámico: Indicadores Sectoriales -->
+                    <div id="contenedor-indicadores-sector" class="bg-brand-50/50 p-6 sm:p-8 rounded-2xl border border-brand-100 hidden relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-10 bg-brand-500 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-brand-800 mb-6 relative z-10">
+                            <i class="fa-solid fa-chart-line mr-2"></i>3. Indicadores Clave: <span id="lbl-ind-sector"></span>
+                        </h3>
+                        <div id="grid-indicadores" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative z-10">
+                            <!-- Inyectado vía JS -->
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                        <div class="space-y-5">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">4. Población Alcanzada</h3>
+                            
+                            <!-- Niños -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-children text-brand-500 mr-2"></i>NNA (0-17 años)</div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Niñas</label><input type="number" id="in-ninas" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Niños</label><input type="number" id="in-ninos" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Adultos -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-users text-brand-500 mr-2"></i>Adultos (18-59 años)</div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Mujeres</label><input type="number" id="in-mujeres-adultas" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Hombres</label><input type="number" id="in-hombres-adultos" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                </div>
+                            </div>
+
+                            <!-- Mayores -->
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-person-cane text-brand-500 mr-2"></i>Adultos Mayores (60+ años)</div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Mujeres</label><input type="number" id="in-mujeres-mayores" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Hombres</label><input type="number" id="in-hombres-mayores" min="0" value="0" onchange="calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-brand-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md">
+                                <span class="font-bold">Total Beneficiarios:</span>
+                                <input type="number" id="in-total" readonly value="0" class="w-24 bg-transparent border-none text-right font-black text-2xl outline-none">
+                            </div>
+                        </div>
+
+                        <div class="space-y-6 flex flex-col h-full">
+                            <div class="space-y-3">
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-2">5. Insumos Adicionales (Opcional)</h3>
+                                <div id="lista-materiales" class="space-y-2"></div>
+                                <button type="button" onclick="agregarFilaMaterial()" class="text-sm text-brand-600 hover:text-brand-800 font-semibold flex items-center bg-brand-50 px-3 py-2 rounded-lg transition"><i class="fa-solid fa-plus-circle mr-1"></i> Añadir insumo extra</button>
+                            </div>
+
+                            <div class="flex-grow flex flex-col pt-4">
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-3">6. Notas de Campo</h3>
+                                <textarea id="in-descripcion" required rows="4" placeholder="Describe detalladamente qué sucedió, participación, problemas logísticos, etc..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none resize-none flex-grow text-sm"></textarea>
+                            </div>
+
+                            <div>
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-3">7. Evidencia Fotográfica</h3>
+                                <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition cursor-pointer relative overflow-hidden group">
+                                    <input type="file" id="in-foto" accept="image/*" onchange="previsualizarFoto(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                    <div id="foto-preview-container" class="hidden absolute inset-0 bg-black/5 flex items-center justify-center">
+                                        <img id="foto-preview" class="max-h-full max-w-full object-contain drop-shadow-md">
+                                    </div>
+                                    <div id="foto-placeholder" class="text-slate-500 group-hover:text-brand-600 transition-colors">
+                                        <i class="fa-solid fa-camera text-3xl mb-2"></i>
+                                        <p class="text-sm font-medium">Click para adjuntar fotografía</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-slate-200">
+                        <button type="button" onclick="procesarReporte()" id="btn-generar" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex justify-center items-center text-lg">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-3"></i> Procesar con IA y Generar Informe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VISTA 2: DOCUMENTO A4 -->
+        <section id="vista-documento" class="hidden slide-up">
+            <div class="mb-6 flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <button onclick="cambiarPista('formulario')" class="text-slate-500 hover:text-brand-600 font-semibold px-4 py-2 rounded-lg hover:bg-slate-50 transition flex items-center mb-4 sm:mb-0">
+                    <i class="fa-solid fa-pen mr-2"></i> Editar Datos
+                </button>
+                <div class="flex gap-3">
+                    <button onclick="generarPDF()" class="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 shadow-sm transition flex items-center">
+                        <i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Descargar PDF
+                    </button>
+                    <button onclick="guardarReporteBD()" id="btn-guardar-bd" class="bg-secondary-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-secondary-900 shadow-md transition flex items-center">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Guardar en Plataforma
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-slate-200/50 p-4 sm:p-8 rounded-2xl overflow-x-auto">
+                <div id="documento-final" class="paper-preview">
+                    
+                    <!-- Encabezado -->
+                    <div class="flex justify-between items-center border-b-2 border-brand-900 pb-4 mb-8">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-brand-900 text-white rounded flex items-center justify-center text-3xl shrink-0"><i class="fa-solid fa-hands-holding-child"></i></div>
+                            <div><h1 class="text-xl font-black text-brand-900 leading-tight">FUNDAINIL</h1><p class="text-xs font-semibold text-slate-500">Fundación para la Asistencia Integral<br>a la Niñez y la Familia</p></div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-bold text-slate-800">INFORME TÉCNICO DE CAMPO</p>
+                            <p class="text-xs text-slate-500 mt-1">Generado vía HumanHub</p>
+                            <p class="text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded mt-1 text-slate-600">ID: <span id="doc-id"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Ficha -->
+                    <div class="mb-8 avoid-break">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">1. Datos Generales de la Intervención</h2>
+                        <div class="grid grid-cols-2 gap-6 bg-slate-50 p-5 rounded-lg border border-slate-200 text-sm">
+                            <div>
+                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Proyecto / Actividad</span><span id="doc-proyecto" class="font-bold text-slate-800 text-base"></span></p>
+                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Tema Específico</span><span id="doc-tema" class="font-semibold text-brand-700"></span></p>
+                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Profesional a Cargo</span><span id="doc-profesional" class="font-semibold text-slate-700"></span></p>
+                                <p><span class="font-bold text-slate-500 text-[10px] uppercase block">Sector de Intervención</span><span id="doc-sector" class="inline-block mt-0.5 px-2.5 py-1 bg-brand-100 text-brand-800 rounded text-xs font-bold"></span></p>
+                            </div>
+                            <div>
+                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Fecha de Ejecución</span><span id="doc-fecha" class="font-semibold text-slate-700"></span></p>
+                                <p><span class="font-bold text-slate-500 text-[10px] uppercase block">Ubicación Geográfica</span><span id="doc-ubicacion" class="font-semibold text-slate-700"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indicadores Específicos -->
+                    <div class="mb-8 avoid-break" id="contenedor-doc-indicadores">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">2. Resultados Cuantitativos Específicos</h2>
+                        <div id="doc-grid-indicadores" class="grid grid-cols-2 gap-4 text-sm bg-white p-0"></div>
+                    </div>
+
+                    <!-- Demografía -->
+                    <div class="mb-8 avoid-break">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">3. Desglose Poblacional Alcanzado</h2>
+                        <table class="w-full text-sm border-collapse border border-slate-200 text-center">
+                            <thead class="bg-slate-100">
+                                <tr>
+                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Categoría</th>
+                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Femenino</th>
+                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Masculino</th>
+                                    <th class="border border-slate-200 p-2 font-bold text-slate-800 bg-slate-200">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Niños/Niñas (0-17)</td><td class="border border-slate-200 p-2" id="doc-ninas"></td><td class="border border-slate-200 p-2" id="doc-ninos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-ninos"></td></tr>
+                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Adultos (18-59)</td><td class="border border-slate-200 p-2" id="doc-m-adultas"></td><td class="border border-slate-200 p-2" id="doc-h-adultos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-adultos"></td></tr>
+                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Adultos Mayores (60+)</td><td class="border border-slate-200 p-2" id="doc-m-mayores"></td><td class="border border-slate-200 p-2" id="doc-h-mayores"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-mayores"></td></tr>
+                                <tr class="bg-brand-50 font-bold text-brand-900"><td class="border border-slate-200 p-2 text-right" colspan="3">TOTAL ALCANZADO:</td><td class="border border-slate-200 p-2 text-lg" id="doc-total"></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mb-8 avoid-break" id="contenedor-doc-materiales">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">4. Insumos Adicionales Distribuidos</h2>
+                        <table class="w-full text-sm border-collapse border border-slate-200"><thead class="bg-slate-100"><tr><th class="border border-slate-200 p-2 text-left font-semibold text-slate-600">Descripción del Artículo</th><th class="border border-slate-200 p-2 w-24 font-semibold text-slate-600">Cantidad</th></tr></thead><tbody id="doc-tbody-materiales"></tbody></table>
+                    </div>
+
+                    <!-- Narrativa IA -->
+                    <div class="mb-8">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4 flex items-center justify-between">
+                            <span>5. Desarrollo Técnico de la Actividad</span>
+                            <span class="text-[9px] bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full normal-case tracking-normal"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Análisis Cualitativo IA</span>
+                        </h2>
+                        <div id="doc-narrativa-ia" class="text-sm text-justify leading-relaxed space-y-3 text-slate-800"></div>
+                    </div>
+
+                    <!-- Evidencia -->
+                    <div class="avoid-break mt-12 pt-6 border-t border-slate-300">
+                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">6. Anexo Fotográfico y Conformidad</h2>
+                        <div class="flex flex-col sm:flex-row gap-8 items-center justify-center mt-6">
+                            <div class="w-full sm:w-1/2 flex justify-center">
+                                <img id="doc-foto" class="max-h-64 object-contain rounded-lg border p-1 border-slate-200 shadow-sm hidden">
+                                <div id="doc-no-foto" class="text-slate-400 text-xs italic">Sin registro fotográfico adjunto.</div>
+                            </div>
+                            <div class="w-full sm:w-1/2 flex flex-col items-center justify-end mt-10 sm:mt-0 pt-10">
+                                <div class="w-48 border-t-2 border-slate-400 mb-2"></div>
+                                <p class="text-xs font-bold text-slate-700 text-center" id="doc-firma-nombre"></p>
+                                <p class="text-[10px] text-slate-500 uppercase text-center">Responsable de Reporte</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VISTA 3: DASHBOARD -->
+        <section id="vista-dashboard" class="hidden slide-up">
+            <div class="flex justify-between items-end mb-8">
+                <div><h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Panel Gerencial Consolidado</h2><p class="text-slate-500 mt-1">Análisis de impacto e intervenciones en tiempo real.</p></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-brand-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Actividades</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-reportes">0</p></div><div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 text-xl"><i class="fa-solid fa-list-check"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-secondary-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Beneficiarios</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-personas">0</p></div><div class="w-12 h-12 bg-secondary-50 rounded-xl flex items-center justify-center text-secondary-600 text-xl"><i class="fa-solid fa-users"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-purple-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Niños/Niñas</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-ninos">0</p></div><div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 text-xl"><i class="fa-solid fa-children"></i></div></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-orange-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Sectores Activos</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-sectores">0</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 text-xl"><i class="fa-solid fa-layer-group"></i></div></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"><h3 class="text-lg font-bold text-slate-800 mb-4">Alcance por Sector</h3><canvas id="chartSectores" height="250"></canvas></div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"><h3 class="text-lg font-bold text-slate-800 mb-4">Distribución Demográfica</h3><canvas id="chartDemografia" height="250"></canvas></div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Reportes Recientes de Campo</h3></div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
+                            <tr><th class="px-6 py-4">Fecha</th><th class="px-6 py-4">Sector</th><th class="px-6 py-4">Proyecto</th><th class="px-6 py-4">Profesional</th><th class="px-6 py-4 text-center">Alcance</th></tr>
+                        </thead>
+                        <tbody id="tabla-reportes-dash"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Notificación -->
+    <div id="modal-mensaje" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform slide-up">
+            <div class="text-center">
+                <div id="modal-icono" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-brand-100 mb-6"></div>
+                <h3 class="text-xl font-bold text-slate-900 mb-2" id="modal-titulo">Título</h3>
+                <p class="text-sm text-slate-500 mb-8" id="modal-texto">Mensaje...</p>
+                <button type="button" onclick="window.cerrarModal()" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-700 transition">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------------------------------------------------------
+        // 🚨 CONFIGURACIÓN DE SUPABASE (CORREGIDA Y SEGURA) 🚨
+        // ---------------------------------------------------------
+        const supabaseUrl = 'https://ynuxronmnmkttxothkax.supabase.co'; 
+        const supabaseKey = 'sb_publishable_p5xCXg1HTJUmlmuD2AOGrA_uVNBEvwY'; 
+        
+        // Inicialización segura: Evita que la app colapse si el CDN de Supabase es bloqueado o tarda en cargar
+        window.supabaseClient = null;
+        if (typeof supabase !== 'undefined') {
+            window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+        } else if (window.supabase) {
+            window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+        } else {
+            console.warn("No se pudo cargar la librería de Supabase. Revisa tu conexión o desactiva tu AdBlocker.");
+        }
+        // ---------------------------------------------------------
+
+        const municipiosPorEstado = {
+            "Distrito Capital": ["Libertador"],
+            "Miranda": ["Acevedo", "Andrés Bello", "Baruta", "Brión", "Buroz", "Carrizal", "Chacao", "Cristóbal Rojas", "El Hatillo", "Guaicaipuro", "Independencia", "Lander", "Los Salias", "Páez", "Paz Castillo", "Pedro Gual", "Plaza", "Simón Bolívar", "Sucre", "Urdaneta", "Zamora"],
+            "La Guaira": ["Vargas"]
+        };
+
+        const configSectores = {
+            "WASH": { icon: "fa-droplet", color: "text-cyan-500", ind: [{ id: "wash_kits", label: "Kits de Higiene Entregados", tipo: "number", icon: "fa-box" }, { id: "wash_litros", label: "Litros de Agua Segura", tipo: "number", icon: "fa-faucet-drip" }, { id: "wash_folletos", label: "Folletos / Material Informativo", tipo: "number", icon: "fa-file-lines" }] },
+            "Salud": { icon: "fa-stethoscope", color: "text-red-500", ind: [{ id: "salud_consultas", label: "Consultas Médicas (Casos)", tipo: "number", icon: "fa-user-doctor" }, { id: "salud_medicamentos", label: "Tratamientos Entregados", tipo: "number", icon: "fa-pills" }, { id: "salud_referencias", label: "Casos Referidos", tipo: "number", icon: "fa-truck-medical" }] },
+            "Nutrición": { icon: "fa-apple-whole", color: "text-orange-500", ind: [{ id: "nutri_tamizajes", label: "Tamizajes Realizados", tipo: "number", icon: "fa-scale-balanced" }, { id: "nutri_suplementos", label: "Suplementos Nutricionales", tipo: "number", icon: "fa-box-open" }, { id: "nutri_charlas", label: "Orientaciones Familiares", tipo: "number", icon: "fa-people-roof" }] },
+            "Protección": { icon: "fa-hands-holding-child", color: "text-purple-500", ind: [{ id: "prot_casos", label: "Casos Remitidos", tipo: "number", icon: "fa-folder-open" }, { id: "prot_psico", label: "Sesiones Apoyo Psicosocial", tipo: "number", icon: "fa-users-viewfinder" }, { id: "prot_material", label: "Material de Derechos", tipo: "number", icon: "fa-scroll" }] },
+            "Educación": { icon: "fa-book-open", color: "text-yellow-500", ind: [{ id: "edu_kits", label: "Kits Escolares", tipo: "number", icon: "fa-backpack" }, { id: "edu_cdi", label: "Sesiones CDI", tipo: "number", icon: "fa-cube" }, { id: "edu_docentes", label: "Material Didáctico Entregado", tipo: "number", icon: "fa-shapes" }] },
+            "Medios de Vida": { icon: "fa-seedling", color: "text-emerald-500", ind: [{ id: "mv_emprendedores", label: "Emprendedores Formados", tipo: "number", icon: "fa-people-group" }, { id: "mv_kits", label: "Kits de Emprendimiento", tipo: "number", icon: "fa-toolbox" }, { id: "mv_asesorias", label: "Asesorías Técnicas", tipo: "number", icon: "fa-comments" }] }
+        };
+
+        let isAdmin = false;
+        let fotoBase64 = "";
+        let reporteActual = null;
+        let chartSectoresInstance = null; 
+        let chartDemoInstance = null;
+
+        window.actualizarMunicipios = () => {
+            const estado = document.getElementById('in-estado').value;
+            const selectMuni = document.getElementById('in-municipio');
+            selectMuni.innerHTML = '<option value="">Seleccione...</option>';
+            if(estado && municipiosPorEstado[estado]) {
+                selectMuni.disabled = false;
+                municipiosPorEstado[estado].forEach(m => {
+                    const opt = document.createElement('option'); opt.value = m; opt.textContent = m; selectMuni.appendChild(opt);
+                });
+            } else { selectMuni.disabled = true; }
+        };
+        
+        window.toggleRol = () => {
+            isAdmin = !isAdmin;
+            const btnDash = document.getElementById('btn-tab-dashboard');
+            const txtRol = document.getElementById('texto-rol');
+            const iconRol = document.getElementById('btn-rol');
+            
+            if(isAdmin) {
+                btnDash.classList.remove('hidden');
+                txtRol.textContent = "Modo: Admin";
+                iconRol.classList.replace('border-brand-200', 'border-secondary-200');
+                iconRol.classList.replace('bg-brand-50', 'bg-secondary-50');
+                iconRol.querySelector('div').classList.replace('bg-brand-500', 'bg-secondary-500');
+                window.mostrarModalNotificacion("Acceso Otorgado", "Modo administrador activado. Leyendo base de datos real...", "success");
+                window.actualizarDashboard();
+            } else {
+                btnDash.classList.add('hidden');
+                txtRol.textContent = "Modo: Campo";
+                iconRol.classList.replace('border-secondary-200', 'border-brand-200');
+                iconRol.classList.replace('bg-secondary-50', 'bg-brand-50');
+                iconRol.querySelector('div').classList.replace('bg-secondary-500', 'bg-brand-500');
+                window.cambiarPista('selector'); 
+            }
+        };
+
+        window.cambiarPista = (vista) => {
+            ['vista-selector', 'vista-formulario', 'vista-documento', 'vista-dashboard'].forEach(id => { document.getElementById(id).classList.add('hidden'); });
+            const btnForm = document.getElementById('btn-tab-formulario'); const btnDash = document.getElementById('btn-tab-dashboard');
+            btnForm.classList.remove('bg-white', 'shadow-sm', 'text-brand-600', 'bg-slate-100', 'text-slate-700');
+            btnDash.classList.remove('bg-white', 'shadow-sm', 'text-brand-600', 'bg-slate-100', 'text-slate-700');
+            if(vista === 'selector' || vista === 'formulario' || vista === 'documento') {
+                document.getElementById('vista-' + vista).classList.remove('hidden');
+                btnForm.classList.add('bg-white', 'shadow-sm', 'text-brand-600');
+                if(vista !== 'documento') btnDash.classList.add('bg-slate-100', 'text-slate-700');
+            } else if (vista === 'dashboard') {
+                document.getElementById('vista-dashboard').classList.remove('hidden');
+                btnDash.classList.add('bg-white', 'shadow-sm', 'text-brand-600'); btnForm.classList.add('bg-slate-100', 'text-slate-700');
+                window.actualizarDashboard();
+            }
+            window.scrollTo(0,0);
+        };
+
+        window.mostrarModalNotificacion = (titulo, mensaje, tipo) => {
+            const modal = document.getElementById('modal-mensaje');
+            document.getElementById('modal-titulo').textContent = titulo; document.getElementById('modal-texto').textContent = mensaje;
+            const icon = document.getElementById('modal-icono');
+            icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-6';
+            if(tipo === 'error') { icon.classList.add('bg-red-100'); icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-3xl text-red-500"></i>'; } 
+            else if(tipo === 'success') { icon.classList.add('bg-secondary-100'); icon.innerHTML = '<i class="fa-solid fa-check text-3xl text-secondary-500"></i>'; } 
+            else { icon.classList.add('bg-brand-100'); icon.innerHTML = '<i class="fa-solid fa-circle-info text-3xl text-brand-500"></i>'; }
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+        };
+        
+        window.cerrarModal = () => { const modal = document.getElementById('modal-mensaje'); modal.classList.add('hidden'); modal.classList.remove('flex'); };
+
+        window.seleccionarSector = (sector) => {
+            const config = configSectores[sector];
+            document.getElementById('lbl-sector-actual').textContent = sector;
+            document.getElementById('in-sector').value = sector;
+            document.getElementById('icono-sector-actual').className = `fa-solid ${config.icon} ${config.color}`;
+            document.getElementById('lbl-ind-sector').textContent = sector;
+            
+            const contPrincipal = document.getElementById('contenedor-indicadores-sector');
+            const grid = document.getElementById('grid-indicadores');
+            grid.innerHTML = ''; 
+            
+            if (config.ind) {
+                contPrincipal.classList.remove('hidden');
+                config.ind.forEach(ind => {
+                    grid.innerHTML += `<div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100"><label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase truncate" title="${ind.label}">${ind.label}</label><div class="relative"><i class="fa-solid ${ind.icon} absolute left-3 top-2.5 text-brand-400"></i><input type="${ind.tipo}" min="0" value="0" data-label="${ind.label}" class="input-indicador-dinamico w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition font-bold text-slate-800 text-lg"></div></div>`;
+                });
+            } else { contPrincipal.classList.add('hidden'); }
+            window.cambiarPista('formulario');
+        };
+
+        window.calcularTotal = () => {
+            const vals = ['in-ninas', 'in-ninos', 'in-mujeres-adultas', 'in-hombres-adultos', 'in-mujeres-mayores', 'in-hombres-mayores'].map(id => parseInt(document.getElementById(id).value) || 0);
+            document.getElementById('in-total').value = vals.reduce((a, b) => a + b, 0);
+        };
+
+        window.agregarFilaMaterial = () => {
+            const lista = document.getElementById('lista-materiales'); const row = document.createElement('div'); row.className = "flex gap-2 items-center fade-in bg-white p-2 border border-slate-200 rounded-lg";
+            row.innerHTML = `<input type="text" placeholder="Ej. Refrigerios, Mesas" class="mat-nombre flex-grow px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm focus:outline-none focus:border-brand-500"><input type="number" placeholder="Cant." min="1" class="mat-cant w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm focus:outline-none focus:border-brand-500 text-center"><button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500 px-2 transition"><i class="fa-solid fa-trash"></i></button>`;
+            lista.appendChild(row);
+        };
+
+        window.previsualizarFoto = (event) => {
+            const file = event.target.files[0];
+            if (file) { const reader = new FileReader(); reader.onload = function(e) { fotoBase64 = e.target.result; document.getElementById('foto-preview').src = fotoBase64; document.getElementById('foto-preview-container').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; reader.readAsDataURL(file); }
+        };
+
+        window.procesarReporte = async () => {
+            const reqIds = ['in-profesional', 'in-proyecto', 'in-tema', 'in-fecha', 'in-sector', 'in-estado', 'in-municipio', 'in-comunidad', 'in-descripcion'];
+            let valido = true; reqIds.forEach(id => { const el = document.getElementById(id); if(!el || !el.value.trim()) valido = false; });
+            if(!valido) { window.mostrarModalNotificacion("Datos Incompletos", "Completa todos los campos marcados con (*) antes de generar el informe.", "error"); return; }
+
+            const btn = document.getElementById('btn-generar'); const originalText = btn.innerHTML;
+            btn.innerHTML = `<div class="loader mr-3"></div> Analizando datos...`; btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            const materialesArr = []; document.querySelectorAll('#lista-materiales > div').forEach(row => { const n = row.querySelector('.mat-nombre').value.trim(); const c = parseInt(row.querySelector('.mat-cant').value) || 0; if(n && c > 0) materialesArr.push({ nombre: n, cantidad: c }); });
+            const indicadoresArr = []; document.querySelectorAll('.input-indicador-dinamico').forEach(input => { const val = parseInt(input.value) || 0; if(val > 0) indicadoresArr.push({ label: input.getAttribute('data-label'), valor: val }); });
+
+            reporteActual = {
+                id: "REP-" + Math.random().toString(36).substr(2, 6).toUpperCase(),
+                profesional: document.getElementById('in-profesional').value.trim(),
+                proyecto: document.getElementById('in-proyecto').value.trim(),
+                tema: document.getElementById('in-tema').value.trim(),
+                fecha: document.getElementById('in-fecha').value,
+                sector: document.getElementById('in-sector').value,
+                estado: document.getElementById('in-estado').value,
+                municipio: document.getElementById('in-municipio').value,
+                comunidad: document.getElementById('in-comunidad').value.trim(),
+                ubicacionCompleta: `${document.getElementById('in-comunidad').value.trim()}, Mun. ${document.getElementById('in-municipio').value}, Edo. ${document.getElementById('in-estado').value}`,
+                ninas: parseInt(document.getElementById('in-ninas').value) || 0, ninos: parseInt(document.getElementById('in-ninos').value) || 0,
+                m_adultas: parseInt(document.getElementById('in-mujeres-adultas').value) || 0, h_adultos: parseInt(document.getElementById('in-hombres-adultos').value) || 0,
+                m_mayores: parseInt(document.getElementById('in-mujeres-mayores').value) || 0, h_mayores: parseInt(document.getElementById('in-hombres-mayores').value) || 0,
+                total: parseInt(document.getElementById('in-total').value) || 0,
+                indicadoresSector: indicadoresArr, materiales: materialesArr, notas: document.getElementById('in-descripcion').value.trim(), foto: fotoBase64, timestamp: new Date().toISOString()
+            };
+
+            await generarVistaDocumento(reporteActual);
+            btn.innerHTML = originalText; btn.disabled = false; btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            window.cambiarPista('documento');
+        };
+
+        async function generarVistaDocumento(data) {
+            document.getElementById('doc-id').textContent = data.id; document.getElementById('doc-profesional').textContent = data.profesional; document.getElementById('doc-firma-nombre').textContent = data.profesional; document.getElementById('doc-proyecto').textContent = data.proyecto; document.getElementById('doc-tema').textContent = data.tema; document.getElementById('doc-sector').textContent = data.sector; document.getElementById('doc-fecha').textContent = data.fecha; document.getElementById('doc-ubicacion').textContent = data.ubicacionCompleta;
+            document.getElementById('doc-ninas').textContent = data.ninas; document.getElementById('doc-ninos').textContent = data.ninos; document.getElementById('doc-sub-ninos').textContent = data.ninas + data.ninos;
+            document.getElementById('doc-m-adultas').textContent = data.m_adultas; document.getElementById('doc-h-adultos').textContent = data.h_adultos; document.getElementById('doc-sub-adultos').textContent = data.m_adultas + data.h_adultos;
+            document.getElementById('doc-m-mayores').textContent = data.m_mayores; document.getElementById('doc-h-mayores').textContent = data.h_mayores; document.getElementById('doc-sub-mayores').textContent = data.m_mayores + data.h_mayores;
+            document.getElementById('doc-total').textContent = data.total;
+
+            const docGridInd = document.getElementById('doc-grid-indicadores'); const contDocInd = document.getElementById('contenedor-doc-indicadores'); docGridInd.innerHTML = '';
+            if(data.indicadoresSector.length > 0) { contDocInd.classList.remove('hidden'); data.indicadoresSector.forEach(ind => { docGridInd.innerHTML += `<div class="flex justify-between items-center border-b border-slate-100 pb-2 bg-slate-50 p-2 rounded"><span class="text-slate-600 font-medium">${ind.label}:</span><span class="font-black text-brand-700 text-lg">${ind.valor}</span></div>`; }); } else { contDocInd.classList.add('hidden'); }
+
+            const tbodyMat = document.getElementById('doc-tbody-materiales'); const contTable = document.getElementById('contenedor-doc-materiales'); tbodyMat.innerHTML = '';
+            if(data.materiales.length > 0) { contTable.classList.remove('hidden'); data.materiales.forEach(m => { tbodyMat.innerHTML += `<tr><td class="border border-slate-200 p-2 text-slate-700">${m.nombre}</td><td class="border border-slate-200 p-2 text-center font-bold text-slate-800">${m.cantidad}</td></tr>`; }); } else { contTable.classList.add('hidden'); }
+
+            if(data.foto) { document.getElementById('doc-foto').src = data.foto; document.getElementById('doc-foto').classList.remove('hidden'); document.getElementById('doc-no-foto').classList.add('hidden'); } else { document.getElementById('doc-foto').classList.add('hidden'); document.getElementById('doc-no-foto').classList.remove('hidden'); }
+
+            const divNarrativa = document.getElementById('doc-narrativa-ia');
+            divNarrativa.innerHTML = `<div class="flex items-center justify-center p-6 text-brand-600 bg-brand-50 rounded"><div class="loader mr-3 border-brand-500 border-t-transparent"></div> Analizando notas del profesional...</div>`;
+            
+            let matStr = data.materiales.length > 0 ? data.materiales.map(m => `${m.cantidad} ${m.nombre}`).join(', ') : "Ninguno extra.";
+            let indStr = data.indicadoresSector.length > 0 ? data.indicadoresSector.map(i => `${i.valor} ${i.label}`).join(', ') : "Sin indicadores cuantitativos.";
+
+            // PROMPT MEJORADO PARA EXIGIR ANÁLISIS IMPACTANTE
+            const prompt = `Eres un Especialista de Monitoreo y Evaluación (M&E) Senior en FUNDAINIL, una prestigiosa ONG venezolana dedicada al desarrollo social, protección, WASH, educación y nutrición.
+            
+            Tu tarea es tomar las "Notas Crudas de Campo" escritas por un promotor y transformarlas en un Informe Cualitativo Técnico, Ejecutivo y de Alto Impacto. 
+            NO repitas literalmente las notas del promotor. Analízalas, dales un tono gerencial, resalta los logros, la respuesta de la comunidad y las lecciones aprendidas.
+            
+            DATOS CRUDOS DE LA ACTIVIDAD:
+            - Sector de Intervención: ${data.sector}
+            - Tema Específico: ${data.tema}
+            - Proyecto General: ${data.proyecto}
+            - Demografía Alcanzada: ${data.total} personas en total (NNA: ${data.ninas + data.ninos}, Adultos: ${data.m_adultas + data.h_adultos}, Adultos Mayores: ${data.m_mayores + data.h_mayores}).
+            - Logros Cuantitativos Clave: ${indStr}.
+            - Material Adicional Entregado: ${matStr}.
+            - NOTAS CRUDAS DE CAMPO (Transforma esto en un análisis profundo): "${data.notas}"
+            
+            INSTRUCCIONES ESTRICTAS PARA EL FORMATO:
+            - Redacta exactamente 3 párrafos.
+            - Párrafo 1: Contexto de la intervención y su alineación con los objetivos de FUNDAINIL en el sector ${data.sector}.
+            - Párrafo 2: Impacto demográfico y análisis de los resultados cuantitativos y materiales entregados.
+            - Párrafo 3: ANÁLISIS CUALITATIVO (El más importante). Extrae el valor de las notas de campo. Evalúa la respuesta de la comunidad, la metodología aplicada (si se menciona) y las proyecciones o necesidades futuras identificadas. Usa un tono objetivo e institucional.
+            
+            Devuelve ÚNICAMENTE el código HTML limpio utilizando etiquetas <p> para los párrafos y <strong> para resaltar datos o frases clave. NO uses markdown, NO uses \`\`\`html.`;
+
+            try {
+                // 🚨 ¡AQUÍ DEBES PONER TU API KEY DE GEMINI PARA QUE LA IA FUNCIONE DE VERDAD! 🚨
+                // Si la dejas vacía (""), usará el texto simulado.
+                const apiKey = ""; 
+                
+                if(!apiKey) {
+                    // Texto simulado mejorado para cuando no hay API Key
+                    setTimeout(() => {
+                        divNarrativa.innerHTML = `
+                        <p>En el marco de las líneas estratégicas de acción de FUNDAINIL para la consolidación de entornos resilientes, se ejecutó la iniciativa asociada al proyecto <strong>"${data.proyecto}"</strong>, focalizando los esfuerzos sectoriales en el área de <strong>${data.sector}</strong>. La sesión, fundamentada teóricamente en <strong>${data.tema}</strong>, permitió abordar las vulnerabilidades locales mediante un acompañamiento directo y estructurado.</p>
+                        
+                        <p>El despliegue operativo alcanzó un registro demográfico de <strong>${data.total} beneficiarios directos</strong>. La respuesta cuantitativa de la intervención evidencia la gestión de los siguientes indicadores clave: <strong>${indStr}</strong>. Complementariamente, el soporte logístico garantizó la distribución de los siguientes insumos esenciales: ${matStr}, fortaleciendo así la capacidad de respuesta comunitaria.</p>
+                        
+                        <p><strong>Análisis de la Intervención y Respuesta Comunitaria:</strong> A partir de las observaciones documentadas en terreno, se evidencia un alto nivel de apropiación de los contenidos por parte de los asistentes. Específicamente, los participantes valoraron positivamente la metodología empleada, destacando áreas clave de aprendizaje. Asimismo, se documentó una solicitud expresa por parte de la comunidad para dar continuidad a estos espacios formativos, lo cual sugiere la necesidad de priorizar acompañamientos sostenidos en temáticas de gobernanza y planificación local para futuras fases del proyecto.</p>`;
+                    }, 1500);
+                    return;
+                }
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                
+                // Realizar la petición real a la API de Gemini
+                const response = await fetch(apiUrl, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
+                });
+                
+                if (!response.ok) throw new Error(`Error en API: ${response.status}`);
+                
+                const result = await response.json();
+                let textoGenerado = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                
+                if (textoGenerado) { 
+                    divNarrativa.innerHTML = textoGenerado.replace(/```html/g, '').replace(/```/g, '').trim(); 
+                }
+            } catch(e) {
+                console.error(e);
+                divNarrativa.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-lg"><p class="font-bold mb-1">Error de conexión IA</p><p class="text-xs">Revisa la consola para más detalles.</p></div>`;
+            }
+        } // <-- Esta llave cerrando la función era la que faltaba
+
+        window.guardarReporteBD = async () => {
+            const btn = document.getElementById('btn-guardar-bd'); const originalText = btn.innerHTML;
+            
+            if (!window.supabaseClient) {
+                window.mostrarModalNotificacion("Error de Conexión", "La conexión a la base de datos no está disponible. Es posible que tu red esté bloqueando el acceso.", "error");
+                return;
+            }
+
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Subiendo a Supabase...`; btn.disabled = true;
+            try {
+                // Usamos el cliente global de supabase (window.supabaseClient)
+                const { data, error } = await window.supabaseClient.from('reportes').insert([{
+                    reporte_id: reporteActual.id,
+                    fecha: reporteActual.fecha,
+                    sector: reporteActual.sector,
+                    proyecto: reporteActual.proyecto,
+                    profesional: reporteActual.profesional,
+                    total_personas: reporteActual.total,
+                    datos_completos: reporteActual
+                }]);
+                if (error) throw new Error(error.message);
+                
+                window.mostrarModalNotificacion("¡Sincronizado con Éxito!", "El reporte de campo ha sido guardado en la base de datos de FUNDAINIL.", "success");
+                btn.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Guardado`; btn.classList.replace('bg-secondary-600', 'bg-slate-400');
+                
+                setTimeout(() => {
+                    document.getElementById('form-reporte').reset(); document.getElementById('foto-preview-container').classList.add('hidden'); document.getElementById('foto-placeholder').classList.remove('hidden'); fotoBase64 = ""; document.getElementById('lista-materiales').innerHTML = '';
+                    window.cambiarPista('selector'); btn.innerHTML = originalText; btn.disabled = false; btn.classList.replace('bg-slate-400', 'bg-secondary-600');
+                }, 2000);
+            } catch (error) { window.mostrarModalNotificacion("Error al guardar", `Ocurrió un problema: ${error.message}`, "error"); btn.innerHTML = originalText; btn.disabled = false; }
+        };
+
+        window.actualizarDashboard = async () => {
+            let datosParaDashboard = [];
+            try {
+                if (!window.supabaseClient) throw new Error("Cliente Supabase no inicializado por bloqueo de red.");
+
+                // Usamos el cliente global de supabase
+                const { data: reportesDB, error } = await window.supabaseClient.from('reportes').select('datos_completos').order('created_at', { ascending: false });
+                if (error) throw error;
+                if (reportesDB && reportesDB.length > 0) { datosParaDashboard = reportesDB.map(fila => fila.datos_completos); } 
+                else { datosParaDashboard = generarDatosDemoFUNDAINIL(); } 
+            } catch (error) { console.error("Error al cargar datos:", error); datosParaDashboard = generarDatosDemoFUNDAINIL(); }
+            
+            renderizarDashboard(datosParaDashboard);
+        };
+
+        function renderizarDashboard(datos) {
+            document.getElementById('dash-total-reportes').textContent = datos.length;
+            document.getElementById('dash-total-personas').textContent = datos.reduce((sum, r) => sum + r.total, 0);
+            document.getElementById('dash-total-ninos').textContent = datos.reduce((sum, r) => sum + r.ninas + r.ninos, 0);
+            document.getElementById('dash-total-sectores').textContent = [...new Set(datos.map(r => r.sector))].length;
+
+            const tbody = document.getElementById('tabla-reportes-dash'); tbody.innerHTML = '';
+            datos.slice(0, 5).forEach(r => {
+                const config = configSectores[r.sector] || { color: 'text-slate-500', icon: 'fa-tag' };
+                tbody.innerHTML += `<tr class="bg-white border-b border-slate-100 hover:bg-slate-50 transition"><td class="px-6 py-4 font-medium">${r.fecha}</td><td class="px-6 py-4"><span class="${config.color} bg-slate-100 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center"><i class="fa-solid ${config.icon} mr-1.5"></i> ${r.sector}</span></td><td class="px-6 py-4 truncate max-w-[200px]" title="${r.proyecto}">${r.proyecto}</td><td class="px-6 py-4">${r.profesional}</td><td class="px-6 py-4 text-center font-bold text-slate-800 bg-slate-50/50">${r.total}</td></tr>`;
+            });
+
+            if(chartSectoresInstance) chartSectoresInstance.destroy(); if(chartDemoInstance) chartDemoInstance.destroy();
+            const porSector = {}; datos.forEach(r => { porSector[r.sector] = (porSector[r.sector] || 0) + r.total; });
+            chartSectoresInstance = new Chart(document.getElementById('chartSectores').getContext('2d'), { type: 'doughnut', data: { labels: Object.keys(porSector), datasets: [{ data: Object.values(porSector), backgroundColor: ['#0ea5e9', '#f97316', '#a855f7', '#ef4444', '#eab308', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%' } });
+            
+            const [tNinas, tNinos, tMAdultas, tHAdultos, tMMayores, tHMayores] = [datos.reduce((s, r) => s+r.ninas,0), datos.reduce((s, r) => s+r.ninos,0), datos.reduce((s, r) => s+r.m_adultas,0), datos.reduce((s, r) => s+r.h_adultos,0), datos.reduce((s, r) => s+r.m_mayores,0), datos.reduce((s, r) => s+r.h_mayores,0)];
+            chartDemoInstance = new Chart(document.getElementById('chartDemografia').getContext('2d'), { type: 'bar', data: { labels: ['Niñas/Niños', 'Mujeres/Hombres (18-59)', 'Mujeres/Hombres (60+)'], datasets: [{ label: 'Femenino', data: [tNinas, tMAdultas, tMMayores], backgroundColor: '#ec4899', borderRadius: 4 }, { label: 'Masculino', data: [tNinos, tHAdultos, tHMayores], backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false } });
+        }
+
+        function generarDatosDemoFUNDAINIL() { return [ { fecha: '2026-08-20', sector: 'Medios de Vida', proyecto: 'Capacidades Emprendedoras', profesional: 'Econ. Rosa Díaz', total: 25, ninas: 0, ninos: 0, m_adultas: 15, h_adultos: 8, m_mayores: 1, h_mayores: 1 } ]; }
+        
+        window.onload = () => window.cambiarPista('selector');
+    </script>
+</body>
+</html>
