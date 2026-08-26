@@ -14,8 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- html2pdf para exportar el reporte -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    
-    <!-- Script de Supabase para conectar con la base de datos -->
+    <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -24,8 +23,7 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        // Colores institucionales de FUNDAINIL (Azul marino profundo)
-                        brand: { 50: '#f0f4f8', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#002855' },
+                        brand: { 50: '#f0f4f8', 100: '#d9e2ec', 200: '#bcccdc', 300: '#9fb3c8', 400: '#829ab1', 500: '#627d98', 600: '#486581', 700: '#334e68', 800: '#243b53', 900: '#102a43' },
                         secondary: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 900: '#14532d' } 
                     }
                 }
@@ -34,42 +32,22 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
-        
         .fade-in { animation: fadeIn 0.4s ease-out; }
         .slide-up { animation: slideUp 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .loader {
-            border: 3px solid #e2e8f0;
-            border-top: 3px solid #002855; 
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-        }
+        .loader { border: 3px solid #e2e8f0; border-top: 3px solid #334e68; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .paper-preview {
-            background-color: white;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-            max-width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 2.5rem; 
-            color: #000;
-        }
-        @media print {
-            body { background: white; }
-            nav, .no-print { display: none !important; }
-            .paper-preview { box-shadow: none; max-width: none; min-height: 0; padding: 0; margin: 0; }
-            .avoid-break { page-break-inside: avoid; }
-        }
+        .paper-preview { background-color: white; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); max-width: 210mm; min-height: 297mm; margin: 0 auto; padding: 2.5rem; color: #000; }
+        @media print { body { background: white; } nav, .no-print { display: none !important; } .paper-preview { box-shadow: none; max-width: none; min-height: 0; padding: 0; margin: 0; } .avoid-break { page-break-inside: avoid; } }
+        
+        /* Toggle Switch Custom CSS */
+        .toggle-checkbox:checked { right: 0; border-color: #16a34a; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #16a34a; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen">
@@ -77,7 +55,6 @@
     <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <!-- Izquierda: Logo Actualizado FUNDAINIL -->
                 <div class="flex items-center gap-3">
                     <img src="https://static.wixstatic.com/media/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png/v1/fill/w_263,h_75,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png" alt="Logo FUNDAINIL" class="h-10 w-auto object-contain">
                     <div class="flex flex-col justify-center border-l-2 border-slate-200 pl-3">
@@ -85,25 +62,13 @@
                         <span class="text-[9px] uppercase font-bold text-slate-500 tracking-widest mt-0.5">Sistema de Reportes</span>
                     </div>
                 </div>
-                
-                <!-- Derecha: Pestañas y Roles -->
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <button onclick="window.cambiarPista('selector')" id="btn-tab-formulario" class="px-4 py-2 rounded-lg text-sm font-semibold bg-white shadow-sm text-brand-600 transition hover:bg-slate-50 focus:outline-none">
-                        <i class="fa-solid fa-pen-to-square mr-1.5"></i> <span class="hidden sm:inline">Nuevo Reporte</span>
-                    </button>
-                    
-                    <button onclick="window.cambiarPista('dashboard')" id="btn-tab-dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition hidden focus:outline-none">
-                        <i class="fa-solid fa-chart-pie mr-1.5"></i> <span class="hidden sm:inline">Panel Gerencial</span>
-                    </button>
-
+                    <button onclick="cambiarPista('selector')" id="btn-tab-formulario" class="px-4 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-700 transition hover:bg-slate-200 focus:outline-none"><i class="fa-solid fa-pen-to-square mr-1.5"></i> <span class="hidden sm:inline">Nuevo Reporte</span></button>
+                    <button onclick="cambiarPista('dashboard')" id="btn-tab-dashboard" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition hidden focus:outline-none"><i class="fa-solid fa-chart-pie mr-1.5"></i> <span class="hidden sm:inline">Panel Gerencial</span></button>
                     <div class="h-6 w-px bg-slate-300 mx-1 hidden sm:block"></div>
-
-                    <!-- Simulador de Rol Protegido -->
                     <div class="relative group">
-                        <button onclick="window.iniciarToggleRol()" id="btn-rol" class="flex items-center gap-2 px-3 py-1.5 border border-brand-200 bg-brand-50 rounded-full transition-all hover:bg-brand-100 focus:outline-none">
-                            <div class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs shadow-sm">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
+                        <button onclick="toggleRol()" id="btn-rol" class="flex items-center gap-2 px-3 py-1.5 border border-brand-200 bg-brand-50 rounded-full transition-all hover:bg-brand-100 focus:outline-none">
+                            <div class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs shadow-sm"><i class="fa-solid fa-user"></i></div>
                             <span id="texto-rol" class="text-xs font-bold text-brand-700 uppercase tracking-wide hidden sm:block">Modo: Campo</span>
                         </button>
                     </div>
@@ -114,337 +79,264 @@
 
     <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
         
-        <!-- ================= VISTA 0: SELECTOR DE SECTOR ================= -->
+        <!-- ================= VISTA 0: SELECTOR ================= -->
         <section id="vista-selector" class="fade-in">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-extrabold text-brand-900 tracking-tight mb-3">¿Qué actividad vamos a reportar hoy?</h2>
-                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Selecciona el área de intervención para cargar los indicadores estandarizados de FUNDAINIL correspondientes a tu actividad.</p>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">¿Qué actividad vamos a reportar hoy?</h2>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Selecciona el área de intervención para cargar los indicadores estandarizados.</p>
             </div>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                <button onclick="window.seleccionarSector('Salud')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-red-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-stethoscope"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Salud</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Consultas médicas, entrega de insumos, jornadas preventivas.</p>
-                </button>
-                <button onclick="window.seleccionarSector('Nutrición')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-orange-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-apple-whole"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Nutrición</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Tamizajes, suplementos, programa de lactancia y alimentación.</p>
-                </button>
-                <button onclick="window.seleccionarSector('WASH')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-cyan-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-cyan-50 text-cyan-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-droplet"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">WASH</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Agua, saneamiento, higiene y promoción de salud comunitaria.</p>
-                </button>
-                <button onclick="window.seleccionarSector('Protección')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-hands-holding-child"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Protección</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Apoyo psicosocial, prevención de violencia, VBG y protección infantil.</p>
-                </button>
-                <button onclick="window.seleccionarSector('Educación')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-yellow-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-yellow-50 text-yellow-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Educación</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Espacios amigables, Cuidado para el Desarrollo Infantil (CDI).</p>
-                </button>
-                <button onclick="window.seleccionarSector('Medios de Vida')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group text-left">
-                    <div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-seedling"></i></div>
-                    <h3 class="text-xl font-bold text-slate-800 mb-2">Medios de Vida</h3>
-                    <p class="text-sm text-slate-500 leading-relaxed">Capacidades emprendedoras para el trabajo y oficios.</p>
-                </button>
+                <button onclick="seleccionarSector('Salud')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-red-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-stethoscope"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Salud</h3></button>
+                <button onclick="seleccionarSector('Nutrición')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-orange-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-apple-whole"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Nutrición</h3></button>
+                <button onclick="seleccionarSector('WASH')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-cyan-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-cyan-50 text-cyan-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-droplet"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">WASH</h3></button>
+                <button onclick="seleccionarSector('Protección')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-purple-50 text-purple-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-hands-holding-child"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Protección</h3></button>
+                <button onclick="seleccionarSector('Educación')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-yellow-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-yellow-50 text-yellow-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-book-open"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Educación</h3></button>
+                <button onclick="seleccionarSector('Medios de Vida')" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:border-emerald-300 hover:shadow-lg transition-all transform hover:-translate-y-1 group text-left"><div class="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform"><i class="fa-solid fa-seedling"></i></div><h3 class="text-xl font-bold text-slate-800 mb-2">Medios de Vida</h3></button>
             </div>
         </section>
 
         <!-- ================= VISTA 1: FORMULARIO ================= -->
         <section id="vista-formulario" class="hidden slide-up">
-            <div class="mb-6">
-                <button type="button" onclick="window.cambiarPista('selector')" class="text-slate-500 hover:text-brand-600 font-semibold text-sm transition flex items-center group">
-                    <div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center mr-3 group-hover:bg-brand-50 group-hover:border-brand-200 transition-colors">
-                        <i class="fa-solid fa-arrow-left"></i>
-                    </div>
-                    Volver al selector de sectores
-                </button>
-            </div>
+            <div class="mb-6"><button type="button" onclick="cambiarPista('selector')" class="text-slate-500 hover:text-brand-600 font-semibold text-sm transition flex items-center group"><div class="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center mr-3 group-hover:bg-brand-50 transition-colors"><i class="fa-solid fa-arrow-left"></i></div>Volver al selector</button></div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden max-w-5xl mx-auto">
-                <div class="bg-slate-50/50 border-b border-slate-200 px-6 py-5 sm:px-8 sm:py-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-clipboard-list text-brand-600 mr-3"></i>Registro de Actividad
-                        </h2>
-                        <p class="text-sm text-slate-500 mt-1">Completa los datos para generar el informe técnico institucional.</p>
-                    </div>
+                <div class="bg-slate-50/50 border-b border-slate-200 px-6 py-5 flex justify-between items-center">
+                    <div><h2 class="text-2xl font-bold text-slate-800 flex items-center"><i class="fa-solid fa-clipboard-list text-brand-600 mr-3"></i>Registro de Actividad</h2></div>
                     <div class="bg-brand-50 text-brand-800 px-4 py-2.5 rounded-xl border border-brand-100 shadow-sm flex items-center gap-3">
-                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                            <i id="icono-sector-actual" class="fa-solid fa-tag text-brand-600"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] uppercase font-bold text-brand-600 block leading-tight">Sector Actual</span>
-                            <span id="lbl-sector-actual" class="font-black text-lg leading-none">Sector</span>
-                        </div>
-                        <input type="hidden" id="in-sector">
+                        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center"><i id="icono-sector-actual" class="fa-solid fa-tag text-brand-600"></i></div>
+                        <div><span class="text-[10px] uppercase font-bold text-brand-600 block leading-tight">Sector Actual</span><span id="lbl-sector-actual" class="font-black text-lg leading-none">Sector</span></div><input type="hidden" id="in-sector">
                     </div>
                 </div>
                 
                 <form id="form-reporte" class="p-6 sm:p-8 space-y-10">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                         
-                        <!-- Datos Básicos -->
+                        <!-- 1. Datos Básicos -->
                         <div class="space-y-5">
-                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">1. Información General</h3>
-                            
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">1. Información General</h3>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Profesional / Promotor *</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-id-badge absolute left-3.5 top-3 text-slate-400"></i>
-                                    <input type="text" id="in-profesional" required placeholder="Ej. Dra. María Pérez" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
-                                </div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Profesional *</label>
+                                <div class="relative"><i class="fa-solid fa-id-badge absolute left-3.5 top-3 text-slate-400"></i><input type="text" id="in-profesional" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"></div>
                             </div>
-                            
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Proyecto o Actividad *</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-file-signature absolute left-3.5 top-3 text-slate-400"></i>
-                                    <input type="text" id="in-proyecto" required placeholder="Ej. Jornada Espacios Amigables" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
-                                </div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nombre del Proyecto *</label>
+                                <div class="relative"><i class="fa-solid fa-file-signature absolute left-3.5 top-3 text-slate-400"></i><input type="text" id="in-proyecto" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"></div>
                             </div>
-                            
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tema Específico de la Actividad *</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-bookmark absolute left-3.5 top-3 text-slate-400"></i>
-                                    <input type="text" id="in-tema" required placeholder="Ej. Prevención de VBG, Lavado de manos..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
-                                </div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tema Específico *</label>
+                                <div class="relative"><i class="fa-solid fa-bookmark absolute left-3.5 top-3 text-slate-400"></i><input type="text" id="in-tema" required class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none" placeholder="(Pronto será un menú dinámico)"></div>
                             </div>
-
-                            <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Fecha de la Actividad *</label>
-                                <input type="date" id="in-fecha" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none text-slate-700">
-                            </div>
+                            <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Fecha *</label><input type="date" id="in-fecha" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-slate-700"></div>
                         </div>
 
-                        <!-- Ubicación -->
+                        <!-- 2. Ubicación y GPS -->
                         <div class="space-y-5">
-                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">2. Localización Geográfica</h3>
-                            
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 flex justify-between items-center">
+                                2. Localización 
+                                <button type="button" onclick="capturarUbicacion()" class="text-xs bg-brand-100 text-brand-700 hover:bg-brand-200 px-3 py-1 rounded-full font-bold transition flex items-center"><i class="fa-solid fa-location-crosshairs mr-1"></i> Usar GPS</button>
+                            </h3>
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Estado *</label>
-                                    <select id="in-estado" required onchange="window.actualizarMunicipios()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none appearance-none">
-                                        <option value="">Seleccione...</option>
-                                        <option value="Distrito Capital">Distrito Capital</option>
-                                        <option value="Miranda">Miranda</option>
-                                        <option value="La Guaira">La Guaira</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Municipio *</label>
-                                    <select id="in-municipio" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none appearance-none disabled:opacity-50">
-                                        <option value="">Seleccione Estado primero</option>
-                                    </select>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Estado *</label><select id="in-estado" required onchange="actualizarMunicipios()" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none"><option value="">Seleccione...</option><option value="Distrito Capital">Distrito Capital</option><option value="Miranda">Miranda</option><option value="La Guaira">La Guaira</option></select></div>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Municipio *</label><select id="in-municipio" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none disabled:opacity-50"><option value="">Seleccione Estado</option></select></div>
+                            </div>
+                            <!-- Separación Comunidad vs Establecimiento -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Comunidad / Sector *</label><input type="text" id="in-comunidad" required placeholder="Ej. La Dolorita" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                                <div><label class="block text-sm font-semibold text-slate-700 mb-1.5">Establecimiento</label><input type="text" id="in-establecimiento" placeholder="Ej. Escuela Miranda" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-semibold text-slate-500 mb-1">Latitud</label><input type="text" id="in-lat" readonly class="w-full px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-500 outline-none cursor-not-allowed"></div>
+                                <div><label class="block text-xs font-semibold text-slate-500 mb-1">Longitud</label><input type="text" id="in-lng" readonly class="w-full px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-lg text-sm text-slate-500 outline-none cursor-not-allowed"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Áreas Transversales y Vulnerabilidades -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200 pb-2"><i class="fa-solid fa-layer-group mr-2"></i>3. Áreas Transversales y Vulnerabilidades Específicas</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Switches AAP, GEN, PEAS -->
+                            <div>
+                                <p class="text-xs font-bold text-slate-500 mb-3 uppercase">Enfoques Integrados a la Actividad</p>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                        <div><p class="text-sm font-bold text-slate-700">Género (GEN)</p><p class="text-[10px] text-slate-500">¿Se abordaron temas de equidad?</p></div>
+                                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" id="tgg-gen" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 z-10"/><label for="tgg-gen" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label></div>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                        <div><p class="text-sm font-bold text-slate-700">Rendición de Cuentas (AAP)</p><p class="text-[10px] text-slate-500">¿Se informó sobre canales de queja?</p></div>
+                                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" id="tgg-aap" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 z-10"/><label for="tgg-aap" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label></div>
+                                    </div>
+                                    <div class="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                        <div><p class="text-sm font-bold text-slate-700">Protección Explotación (PEAS)</p><p class="text-[10px] text-slate-500">Prevención de abuso sexual</p></div>
+                                        <div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in"><input type="checkbox" id="tgg-peas" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-slate-300 z-10"/><label for="tgg-peas" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-300 cursor-pointer"></label></div>
+                                    </div>
                                 </div>
                             </div>
-                            
+
+                            <!-- Contadores Vulnerabilidad -->
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Comunidad / Sector Específico *</label>
-                                <div class="relative">
-                                    <i class="fa-solid fa-map-location-dot absolute left-3.5 top-3 text-slate-400"></i>
-                                    <input type="text" id="in-comunidad" required placeholder="Ej. Campamento Los Caracas, Sector 3" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none">
+                                <p class="text-xs font-bold text-slate-500 mb-3 uppercase">Población con Vulnerabilidad Específica</p>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                                        <label class="text-sm font-bold text-slate-700 flex items-center"><i class="fa-solid fa-wheelchair text-brand-500 w-6"></i> Personas con Discapacidad</label>
+                                        <input type="number" id="vul-discapacidad" min="0" value="0" class="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-center font-bold text-slate-800 outline-none">
+                                    </div>
+                                    <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                                        <label class="text-sm font-bold text-slate-700 flex items-center"><i class="fa-solid fa-person-breastfeeding text-brand-500 w-6"></i> Embarazadas / Lactantes</label>
+                                        <input type="number" id="vul-embarazadas" min="0" value="0" class="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-center font-bold text-slate-800 outline-none">
+                                    </div>
+                                    <div class="flex items-center justify-between bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
+                                        <label class="text-sm font-bold text-slate-700 flex items-center"><i class="fa-solid fa-earth-americas text-brand-500 w-6"></i> Población Indígena</label>
+                                        <input type="number" id="vul-indigenas" min="0" value="0" class="w-16 px-2 py-1 bg-slate-50 border border-slate-200 rounded text-center font-bold text-slate-800 outline-none">
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Bloque Dinámico: Indicadores Sectoriales -->
+                    <!-- 4. Población (Matriz R y No-R) -->
+                    <div>
+                        <div class="flex justify-between items-end border-b border-slate-100 pb-2 mb-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">4. Desglose Poblacional (Nuevo vs Recurrente)</h3>
+                            <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold">R = Recurrente | NO-R = Primera vez</span>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                            <table class="w-full text-sm text-center">
+                                <thead class="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase">
+                                    <tr>
+                                        <th rowspan="2" class="p-3 border-r border-slate-200 text-left w-1/4">Grupo de Edad</th>
+                                        <th colspan="2" class="p-2 border-r border-slate-200 text-pink-600 bg-pink-50/50">Femenino</th>
+                                        <th colspan="2" class="p-2 border-r border-slate-200 text-blue-600 bg-blue-50/50">Masculino</th>
+                                        <th rowspan="2" class="p-3 font-bold text-slate-800 bg-slate-100 w-20">Total</th>
+                                    </tr>
+                                    <tr class="text-[10px] font-bold">
+                                        <th class="p-2 border-r border-t border-slate-200 bg-pink-50/30">NO-R</th>
+                                        <th class="p-2 border-r border-t border-slate-200 bg-pink-50/30">R</th>
+                                        <th class="p-2 border-r border-t border-slate-200 bg-blue-50/30">NO-R</th>
+                                        <th class="p-2 border-r border-t border-slate-200 bg-blue-50/30">R</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody-edades" class="divide-y divide-slate-100">
+                                    <!-- Filas Básicas (Pronto serán dinámicas) -->
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-3 border-r border-slate-200 text-left font-semibold text-slate-700">0 - 17 años</td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="nna" data-gender="f" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="nna" data-gender="f" data-type="r"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="nna" data-gender="m" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="nna" data-gender="m" data-type="r"></td>
+                                        <td class="p-3 font-bold text-slate-800 bg-slate-50" id="tot-nna">0</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-3 border-r border-slate-200 text-left font-semibold text-slate-700">18 - 59 años</td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="adulto" data-gender="f" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="adulto" data-gender="f" data-type="r"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="adulto" data-gender="m" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="adulto" data-gender="m" data-type="r"></td>
+                                        <td class="p-3 font-bold text-slate-800 bg-slate-50" id="tot-adulto">0</td>
+                                    </tr>
+                                    <tr class="hover:bg-slate-50 transition">
+                                        <td class="p-3 border-r border-slate-200 text-left font-semibold text-slate-700">60+ años</td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="mayor" data-gender="f" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-pink-400 outline-none" data-group="mayor" data-gender="f" data-type="r"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="mayor" data-gender="m" data-type="nor"></td>
+                                        <td class="p-2 border-r border-slate-200"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border border-slate-200 rounded focus:border-blue-400 outline-none" data-group="mayor" data-gender="m" data-type="r"></td>
+                                        <td class="p-3 font-bold text-slate-800 bg-slate-50" id="tot-mayor">0</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-brand-900 text-white font-bold">
+                                        <td class="p-3 text-right" colspan="5">TOTAL ALCANZADO:</td>
+                                        <td class="p-3 text-xl" id="gran-total">0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Indicadores Sectoriales (Dinámicos) -->
                     <div id="contenedor-indicadores-sector" class="bg-brand-50/50 p-6 sm:p-8 rounded-2xl border border-brand-100 hidden relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-10 bg-brand-500 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
-                        <h3 class="text-sm font-bold uppercase tracking-wider text-brand-800 mb-6 relative z-10">
-                            <i class="fa-solid fa-chart-line mr-2"></i>3. Indicadores Clave: <span id="lbl-ind-sector"></span>
-                        </h3>
-                        <div id="grid-indicadores" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative z-10">
-                            <!-- Inyectado vía JS -->
-                        </div>
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-brand-800 mb-6 relative z-10"><i class="fa-solid fa-chart-line mr-2"></i>5. Indicadores Clave: <span id="lbl-ind-sector"></span></h3>
+                        <div id="grid-indicadores" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative z-10"></div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                        <div class="space-y-5">
-                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4">4. Población Alcanzada</h3>
-                            
-                            <!-- Niños -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-children text-brand-500 mr-2"></i>Niños, Niñas y Adolescentes (0-17)</div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Niñas</label><input type="number" id="in-ninas" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Niños</label><input type="number" id="in-ninos" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                </div>
-                            </div>
-                            
-                            <!-- Adultos -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-users text-brand-500 mr-2"></i>Adultos (18-59 años)</div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Mujeres</label><input type="number" id="in-mujeres-adultas" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Hombres</label><input type="number" id="in-hombres-adultos" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                </div>
-                            </div>
-
-                            <!-- Mayores -->
-                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                <div class="text-sm font-bold text-slate-700 mb-3 flex items-center"><i class="fa-solid fa-person-cane text-brand-500 mr-2"></i>Adultos Mayores (60+ años)</div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Mujeres</label><input type="number" id="in-mujeres-mayores" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                    <div><label class="block text-xs font-semibold text-slate-500 mb-1">Hombres</label><input type="number" id="in-hombres-mayores" min="0" value="0" onchange="window.calcularTotal()" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-center font-bold text-slate-800 focus:ring-2 focus:ring-brand-500 outline-none"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-brand-900 text-white p-4 rounded-xl flex justify-between items-center shadow-md">
-                                <span class="font-bold">Total Beneficiarios:</span>
-                                <input type="number" id="in-total" readonly value="0" class="w-24 bg-transparent border-none text-right font-black text-2xl outline-none">
-                            </div>
-                        </div>
-
-                        <!-- Columna Derecha: Notas, Extras y Foto -->
                         <div class="space-y-6 flex flex-col h-full">
-                            <div class="space-y-3">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-2">5. Insumos Adicionales (Opcional)</h3>
-                                <div id="lista-materiales" class="space-y-2"></div>
-                                <button type="button" onclick="window.agregarFilaMaterial()" class="text-sm text-brand-600 hover:text-brand-800 font-semibold flex items-center bg-brand-50 px-3 py-2 rounded-lg transition"><i class="fa-solid fa-plus-circle mr-1"></i> Añadir insumo extra</button>
-                            </div>
-
-                            <div class="flex-grow flex flex-col pt-4">
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-3">6. Notas Analíticas de Campo</h3>
-                                <textarea id="in-descripcion" required rows="4" placeholder="Ej. El circulo de experiencias representa la actividad de cierre... las personas manifestaron que les gusto mucho... solicitaron que sigamos compartiendo con ellos." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:bg-white transition shadow-sm outline-none resize-none flex-grow text-sm"></textarea>
-                            </div>
-
-                            <div>
-                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-3">7. Evidencia Fotográfica</h3>
-                                <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition cursor-pointer relative overflow-hidden group">
-                                    <input type="file" id="in-foto" accept="image/*" onchange="window.previsualizarFoto(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                                    <div id="foto-preview-container" class="hidden absolute inset-0 bg-black/5 flex items-center justify-center">
-                                        <img id="foto-preview" class="max-h-full max-w-full object-contain drop-shadow-md">
-                                    </div>
-                                    <div id="foto-placeholder" class="text-slate-500 group-hover:text-brand-600 transition-colors">
-                                        <i class="fa-solid fa-camera text-3xl mb-2"></i>
-                                        <p class="text-sm font-medium">Click para adjuntar fotografía</p>
-                                    </div>
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">6. Insumos Extra / Notas / Foto</h3>
+                            <div id="lista-materiales" class="space-y-2"></div>
+                            <button type="button" onclick="agregarFilaMaterial()" class="text-sm text-brand-600 hover:text-brand-800 font-semibold flex items-center bg-brand-50 px-3 py-2 rounded-lg w-fit"><i class="fa-solid fa-plus-circle mr-1"></i> Añadir insumo</button>
+                            <textarea id="in-descripcion" required rows="4" placeholder="Notas analíticas de campo..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none resize-none flex-grow text-sm"></textarea>
+                        </div>
+                        <div>
+                            <div class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:bg-slate-50 transition cursor-pointer relative overflow-hidden group h-full min-h-[200px] flex items-center justify-center">
+                                <input type="file" id="in-foto" accept="image/*" onchange="previsualizarFoto(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div id="foto-preview-container" class="hidden absolute inset-0 bg-black/5 flex items-center justify-center p-2">
+                                    <img id="foto-preview" class="max-h-full max-w-full object-contain drop-shadow-md rounded">
+                                </div>
+                                <div id="foto-placeholder" class="text-slate-500 group-hover:text-brand-600 transition-colors">
+                                    <i class="fa-solid fa-camera text-4xl mb-3"></i>
+                                    <p class="text-sm font-medium">Adjuntar fotografía de evidencia</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="pt-6 border-t border-slate-200">
-                        <button type="button" onclick="window.procesarReporte()" id="btn-generar" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex justify-center items-center text-lg">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-3"></i> Procesar con IA y Generar Informe
+                        <button type="button" onclick="procesarReporte()" id="btn-generar" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex justify-center items-center text-lg">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-3"></i> Procesar y Generar Informe
                         </button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- ================= VISTA 2: DOCUMENTO A4 INDIVIDUAL ================= -->
+        <!-- ================= VISTA 2: DOCUMENTO A4 ================= -->
         <section id="vista-documento" class="hidden slide-up">
             <div class="mb-6 flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
-                <button onclick="window.cambiarPista('formulario')" class="text-slate-500 hover:text-brand-600 font-semibold px-4 py-2 rounded-lg hover:bg-slate-50 transition flex items-center mb-4 sm:mb-0">
-                    <i class="fa-solid fa-pen mr-2"></i> Editar Datos
-                </button>
+                <button onclick="cambiarPista('formulario')" class="text-slate-500 hover:text-brand-600 font-semibold px-4 py-2 rounded-lg hover:bg-slate-50 transition flex items-center mb-4 sm:mb-0"><i class="fa-solid fa-pen mr-2"></i> Editar Datos</button>
                 <div class="flex gap-3">
-                    <button onclick="window.generarPDF()" class="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 shadow-sm transition flex items-center">
-                        <i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> Descargar PDF
-                    </button>
-                    <button onclick="window.guardarReporteBD()" id="btn-guardar-bd" class="bg-secondary-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-secondary-900 shadow-md transition flex items-center">
-                        <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Guardar en Plataforma
-                    </button>
+                    <button onclick="generarPDF()" class="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-bold hover:bg-slate-50 shadow-sm transition flex items-center"><i class="fa-solid fa-file-pdf text-red-500 mr-2"></i> PDF</button>
+                    <button id="btn-guardar-bd" class="bg-secondary-600 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-secondary-900 shadow-md transition flex items-center"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Guardar</button>
                 </div>
             </div>
 
             <div class="bg-slate-200/50 p-4 sm:p-8 rounded-2xl overflow-x-auto">
                 <div id="documento-final" class="paper-preview">
+                    <!-- Componentes del documento (Mantenemos la estructura simplificada por espacio, se rellenará en JS) -->
+                    <div class="border-b-2 border-brand-900 pb-4 mb-8 flex justify-between items-center">
+                        <div class="flex items-center gap-4"><div class="w-16 h-16 bg-brand-900 text-white rounded flex justify-center items-center text-3xl"><i class="fa-solid fa-hands-holding-child"></i></div><div><h1 class="text-xl font-black text-brand-900">FUNDAINIL</h1><p class="text-xs text-slate-500">Informe Técnico de Campo</p></div></div>
+                        <div class="text-right text-xs text-slate-500">ID: <span id="doc-id" class="font-mono bg-slate-100 px-1"></span></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-sm mb-6 bg-slate-50 p-4 border border-slate-200 rounded">
+                        <div><strong>Proyecto:</strong> <span id="doc-proyecto"></span><br><strong>Tema:</strong> <span id="doc-tema"></span><br><strong>Sector:</strong> <span id="doc-sector"></span></div>
+                        <div><strong>Fecha:</strong> <span id="doc-fecha"></span><br><strong>Comunidad:</strong> <span id="doc-comunidad"></span><br><strong>Inst.:</strong> <span id="doc-inst"></span></div>
+                    </div>
                     
-                    <!-- Encabezado Corporativo -->
-                    <div class="flex justify-between items-center border-b-2 border-brand-900 pb-4 mb-8">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-brand-900 text-white rounded flex items-center justify-center text-3xl shrink-0"><i class="fa-solid fa-hands-holding-child"></i></div>
-                            <div><h1 class="text-xl font-black text-brand-900 leading-tight">FUNDAINIL</h1><p class="text-xs font-semibold text-slate-500">Fundación para la Asistencia Integral<br>a la Niñez y la Familia</p></div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold text-slate-800">INFORME TÉCNICO DE CAMPO</p>
-                            <p class="text-xs text-slate-500 mt-1">Generado vía HumanHub</p>
-                            <p class="text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded mt-1 text-slate-600">ID: <span id="doc-id"></span></p>
-                        </div>
+                    <div class="mb-6 text-sm flex gap-4 bg-brand-50 p-3 rounded border border-brand-100">
+                        <span class="font-bold text-brand-800">Transversales:</span>
+                        <span id="doc-gen" class="text-slate-600"></span> | <span id="doc-aap" class="text-slate-600"></span> | <span id="doc-peas" class="text-slate-600"></span>
                     </div>
 
-                    <!-- Ficha -->
-                    <div class="mb-8 avoid-break">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">1. Datos Generales de la Intervención</h2>
-                        <div class="grid grid-cols-2 gap-6 bg-slate-50 p-5 rounded-lg border border-slate-200 text-sm">
-                            <div>
-                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Proyecto / Actividad</span><span id="doc-proyecto" class="font-bold text-slate-800 text-base"></span></p>
-                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Tema Específico</span><span id="doc-tema" class="font-semibold text-brand-700"></span></p>
-                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Profesional a Cargo</span><span id="doc-profesional" class="font-semibold text-slate-700"></span></p>
-                                <p><span class="font-bold text-slate-500 text-[10px] uppercase block">Sector de Intervención</span><span id="doc-sector" class="inline-block mt-0.5 px-2.5 py-1 bg-brand-100 text-brand-800 rounded text-xs font-bold"></span></p>
-                            </div>
-                            <div>
-                                <p class="mb-3"><span class="font-bold text-slate-500 text-[10px] uppercase block">Fecha de Ejecución</span><span id="doc-fecha" class="font-semibold text-slate-700"></span></p>
-                                <p><span class="font-bold text-slate-500 text-[10px] uppercase block">Ubicación Geográfica</span><span id="doc-ubicacion" class="font-semibold text-slate-700"></span></p>
-                            </div>
-                        </div>
-                    </div>
+                    <h2 class="text-sm font-bold text-brand-800 uppercase border-b border-slate-200 mb-2">Población Alcanzada (Total: <span id="doc-total"></span>)</h2>
+                    <table class="w-full text-xs text-center border-collapse border border-slate-200 mb-6">
+                        <thead class="bg-slate-100"><tr><th class="border p-1">Grupo</th><th class="border p-1">Fem NO-R</th><th class="border p-1">Fem R</th><th class="border p-1">Masc NO-R</th><th class="border p-1">Masc R</th><th class="border p-1 font-bold">Subtotal</th></tr></thead>
+                        <tbody id="doc-tbody-edades"></tbody>
+                    </table>
 
-                    <!-- Indicadores Específicos -->
-                    <div class="mb-8 avoid-break" id="contenedor-doc-indicadores">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">2. Resultados Cuantitativos Específicos</h2>
-                        <div id="doc-grid-indicadores" class="grid grid-cols-2 gap-4 text-sm bg-white p-0"></div>
-                    </div>
+                    <div id="contenedor-doc-indicadores" class="mb-6"><h2 class="text-sm font-bold text-brand-800 uppercase border-b border-slate-200 mb-2">Resultados Cuantitativos</h2><div id="doc-grid-indicadores" class="grid grid-cols-2 gap-2 text-xs"></div></div>
+                    
+                    <h2 class="text-sm font-bold text-brand-800 uppercase border-b border-slate-200 mb-2">Notas y Desarrollo</h2>
+                    <p id="doc-notas" class="text-sm text-justify text-slate-700 italic bg-slate-50 p-4 border border-slate-200 rounded mb-6"></p>
 
-                    <!-- Demografía -->
-                    <div class="mb-8 avoid-break">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">3. Desglose Poblacional Alcanzado</h2>
-                        <table class="w-full text-sm border-collapse border border-slate-200 text-center">
-                            <thead class="bg-slate-100">
-                                <tr>
-                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Categoría</th>
-                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Femenino</th>
-                                    <th class="border border-slate-200 p-2 font-semibold text-slate-600">Masculino</th>
-                                    <th class="border border-slate-200 p-2 font-bold text-slate-800 bg-slate-200">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Niños/Niñas (0-17)</td><td class="border border-slate-200 p-2" id="doc-ninas"></td><td class="border border-slate-200 p-2" id="doc-ninos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-ninos"></td></tr>
-                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Adultos (18-59)</td><td class="border border-slate-200 p-2" id="doc-m-adultas"></td><td class="border border-slate-200 p-2" id="doc-h-adultos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-adultos"></td></tr>
-                                <tr><td class="border border-slate-200 p-2 font-medium text-left bg-slate-50">Adultos Mayores (60+)</td><td class="border border-slate-200 p-2" id="doc-m-mayores"></td><td class="border border-slate-200 p-2" id="doc-h-mayores"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="doc-sub-mayores"></td></tr>
-                                <tr class="bg-brand-50 font-bold text-brand-900"><td class="border border-slate-200 p-2 text-right" colspan="3">TOTAL ALCANZADO:</td><td class="border border-slate-200 p-2 text-lg" id="doc-total"></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="mb-8 avoid-break" id="contenedor-doc-materiales">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">4. Insumos Adicionales Distribuidos</h2>
-                        <table class="w-full text-sm border-collapse border border-slate-200"><thead class="bg-slate-100"><tr><th class="border border-slate-200 p-2 text-left font-semibold text-slate-600">Descripción del Artículo</th><th class="border border-slate-200 p-2 w-24 font-semibold text-slate-600">Cantidad</th></tr></thead><tbody id="doc-tbody-materiales"></tbody></table>
-                    </div>
-
-                    <!-- Narrativa IA -->
-                    <div class="mb-8">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4 flex items-center justify-between">
-                            <span>5. Desarrollo Técnico de la Actividad</span>
-                            <span class="text-[9px] bg-brand-100 text-brand-700 px-2 py-0.5 rounded-full normal-case tracking-normal"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Análisis Cualitativo IA</span>
-                        </h2>
-                        <div id="doc-narrativa-ia" class="text-sm text-justify leading-relaxed space-y-3 text-slate-800"></div>
-                    </div>
-
-                    <!-- Evidencia -->
-                    <div class="avoid-break mt-12 pt-6 border-t border-slate-300">
-                        <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">6. Anexo Fotográfico y Conformidad</h2>
-                        <div class="flex flex-col sm:flex-row gap-8 items-center justify-center mt-6">
-                            <div class="w-full sm:w-1/2 flex justify-center">
-                                <img id="doc-foto" class="max-h-64 object-contain rounded-lg border p-1 border-slate-200 shadow-sm hidden">
-                                <div id="doc-no-foto" class="text-slate-400 text-xs italic">Sin registro fotográfico adjunto.</div>
-                            </div>
-                            <div class="w-full sm:w-1/2 flex flex-col items-center justify-end mt-10 sm:mt-0 pt-10">
-                                <div class="w-48 border-t-2 border-slate-400 mb-2"></div>
-                                <p class="text-xs font-bold text-slate-700 text-center" id="doc-firma-nombre"></p>
-                                <p class="text-[10px] text-slate-500 uppercase text-center">Responsable de Reporte</p>
-                            </div>
-                        </div>
+                    <div class="flex flex-col items-center mt-12 pt-6 border-t border-slate-300">
+                        <img id="doc-foto" class="max-h-64 object-contain rounded-lg border p-1 border-slate-200 shadow-sm hidden mb-8">
+                        <div class="w-48 border-t-2 border-slate-400 mb-1"></div>
+                        <p class="text-xs font-bold text-slate-700 text-center" id="doc-firma-nombre"></p>
+                        <p class="text-[10px] text-slate-500 uppercase text-center">Responsable de Reporte</p>
                     </div>
                 </div>
             </div>
@@ -452,587 +344,136 @@
 
         <!-- ================= VISTA 3: DASHBOARD ================= -->
         <section id="vista-dashboard" class="hidden slide-up">
-            <div class="flex justify-between items-end mb-8">
-                <div><h2 class="text-3xl font-extrabold text-brand-900 tracking-tight">Panel Gerencial Consolidado</h2><p class="text-slate-500 mt-1">Análisis de impacto e intervenciones en tiempo real.</p></div>
-            </div>
-
-            <!-- Nuevo Módulo: Generador de Reportes Consolidados -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-                <div class="px-6 py-4 border-b border-slate-200 bg-brand-50 flex justify-between items-center">
-                    <h3 class="text-lg font-bold text-brand-900"><i class="fa-solid fa-file-pdf text-brand-600 mr-2"></i> Generador de Informes Consolidados</h3>
-                </div>
-                <div class="p-6">
-                    <p class="text-sm text-slate-500 mb-4">Genera un PDF con la sumatoria de beneficiarios y lista de actividades según los filtros aplicados.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Filtrar por Sector</label>
-                            <select id="filtro-sector" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium">
-                                <option value="TODOS">Todos los Sectores</option>
-                                <option value="Salud">Salud</option>
-                                <option value="Nutrición">Nutrición</option>
-                                <option value="WASH">WASH</option>
-                                <option value="Protección">Protección</option>
-                                <option value="Educación">Educación</option>
-                                <option value="Medios de Vida">Medios de Vida</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha Inicio (Opcional)</label>
-                            <input type="date" id="filtro-fecha-inicio" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium text-slate-700">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Fecha Fin (Opcional)</label>
-                            <input type="date" id="filtro-fecha-fin" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-sm font-medium text-slate-700">
-                        </div>
-                    </div>
-                    <button onclick="window.generarPDFConsolidado()" class="w-full sm:w-auto bg-brand-900 hover:bg-brand-800 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex items-center justify-center">
-                        <i class="fa-solid fa-download mr-2"></i> Descargar Reporte Consolidado (PDF)
-                    </button>
-                </div>
-            </div>
-
-            <!-- KPIs -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-brand-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Actividades</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-reportes">0</p></div><div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 text-xl"><i class="fa-solid fa-list-check"></i></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-secondary-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Beneficiarios</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-personas">0</p></div><div class="w-12 h-12 bg-secondary-50 rounded-xl flex items-center justify-center text-secondary-600 text-xl"><i class="fa-solid fa-users"></i></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-purple-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Niños/Niñas</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-ninos">0</p></div><div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 text-xl"><i class="fa-solid fa-children"></i></div></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between relative overflow-hidden"><div class="absolute right-0 top-0 h-full w-2 bg-orange-500"></div><div><p class="text-sm font-bold text-slate-500 uppercase">Sectores Activos</p><p class="text-3xl font-black text-slate-800 mt-1" id="dash-total-sectores">0</p></div><div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 text-xl"><i class="fa-solid fa-layer-group"></i></div></div>
-            </div>
-
-            <!-- Gráficas -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"><h3 class="text-lg font-bold text-slate-800 mb-4">Alcance por Sector</h3><canvas id="chartSectores" height="250"></canvas></div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200"><h3 class="text-lg font-bold text-slate-800 mb-4">Distribución Demográfica</h3><canvas id="chartDemografia" height="250"></canvas></div>
-            </div>
-            
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center"><h3 class="text-lg font-bold text-slate-800">Reportes Recientes de Campo</h3></div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-slate-600">
-                        <thead class="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-200">
-                            <tr><th class="px-6 py-4">Fecha</th><th class="px-6 py-4">Sector</th><th class="px-6 py-4">Proyecto</th><th class="px-6 py-4">Profesional</th><th class="px-6 py-4 text-center">Alcance</th></tr>
-                        </thead>
-                        <tbody id="tabla-reportes-dash"></tbody>
-                    </table>
-                </div>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-8">Panel Gerencial (Demo Estático)</h2>
+            <div class="bg-white p-10 rounded-2xl border border-slate-200 text-center shadow-sm">
+                <i class="fa-solid fa-person-digging text-6xl text-slate-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-slate-700">Panel en Remodelación</h3>
+                <p class="text-slate-500 mt-2">Esta sección se actualizará en la Fase 2 una vez conectemos las tablas dinámicas de Supabase.</p>
+                <button onclick="cambiarPista('selector')" class="mt-6 bg-brand-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-brand-700">Volver a Reportes</button>
             </div>
         </section>
-        
-        <!-- Estructura Oculta para Imprimir el PDF Consolidado -->
-        <div id="vista-pdf-consolidado" class="hidden">
-            <div id="documento-consolidado" class="paper-preview">
-                <div class="flex justify-between items-center border-b-2 border-brand-900 pb-4 mb-8">
-                    <div class="flex items-center gap-4">
-                        <div class="w-16 h-16 bg-brand-900 text-white rounded flex items-center justify-center text-3xl shrink-0"><i class="fa-solid fa-hands-holding-child"></i></div>
-                        <div><h1 class="text-xl font-black text-brand-900 leading-tight">FUNDAINIL</h1><p class="text-xs font-semibold text-slate-500">Fundación para la Asistencia Integral<br>a la Niñez y la Familia</p></div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-bold text-slate-800">REPORTE GERENCIAL CONSOLIDADO</p>
-                        <p class="text-xs text-slate-500 mt-1" id="cons-fecha-emision"></p>
-                    </div>
-                </div>
-                
-                <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">1. Parámetros del Reporte</h2>
-                <div class="grid grid-cols-2 gap-4 mb-8 bg-slate-50 p-4 border border-slate-200 rounded text-sm">
-                    <div><strong>Sector Analizado:</strong> <span id="cons-filtro-sector" class="text-brand-700 font-semibold"></span></div>
-                    <div><strong>Período de Tiempo:</strong> <span id="cons-filtro-fechas"></span></div>
-                    <div><strong>Total de Actividades Registradas:</strong> <span id="cons-total-actividades" class="font-bold"></span></div>
-                    <div><strong>Población Total Alcanzada:</strong> <span id="cons-total-poblacion" class="font-bold text-brand-700"></span></div>
-                </div>
-
-                <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4">2. Impacto Demográfico Acumulado</h2>
-                <table class="w-full text-sm border-collapse border border-slate-200 text-center mb-8">
-                    <thead class="bg-slate-100">
-                        <tr><th class="border border-slate-200 p-2 text-slate-600">Categoría</th><th class="border border-slate-200 p-2 text-slate-600">Femenino</th><th class="border border-slate-200 p-2 text-slate-600">Masculino</th><th class="border border-slate-200 p-2 text-slate-800 bg-slate-200">Subtotal</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td class="border border-slate-200 p-2 text-left bg-slate-50">NNA (0-17)</td><td class="border border-slate-200 p-2" id="cons-ninas"></td><td class="border border-slate-200 p-2" id="cons-ninos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="cons-sub-ninos"></td></tr>
-                        <tr><td class="border border-slate-200 p-2 text-left bg-slate-50">Adultos (18-59)</td><td class="border border-slate-200 p-2" id="cons-m-adultas"></td><td class="border border-slate-200 p-2" id="cons-h-adultos"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="cons-sub-adultos"></td></tr>
-                        <tr><td class="border border-slate-200 p-2 text-left bg-slate-50">Mayores (60+)</td><td class="border border-slate-200 p-2" id="cons-m-mayores"></td><td class="border border-slate-200 p-2" id="cons-h-mayores"></td><td class="border border-slate-200 p-2 font-bold bg-slate-50" id="cons-sub-mayores"></td></tr>
-                    </tbody>
-                </table>
-                
-                <h2 class="text-sm font-bold text-brand-800 uppercase tracking-widest border-b border-slate-200 pb-1 mb-4 avoid-break">3. Desglose de Actividades Registradas</h2>
-                <table class="w-full text-[11px] border-collapse border border-slate-200">
-                    <thead class="bg-slate-100 text-slate-600">
-                        <tr><th class="border border-slate-200 p-2 text-left">Fecha</th><th class="border border-slate-200 p-2 text-left">Sector</th><th class="border border-slate-200 p-2 text-left">Proyecto</th><th class="border border-slate-200 p-2 text-left">Profesional</th><th class="border border-slate-200 p-2">Total</th></tr>
-                    </thead>
-                    <tbody id="cons-tbody-actividades"></tbody>
-                </table>
-            </div>
-        </div>
     </main>
 
-    <!-- Modal de Password Admin -->
-    <div id="modal-password" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform slide-up">
-            <div class="text-center mb-6">
-                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-brand-50 mb-4 text-brand-600 text-2xl border border-brand-100">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="text-xl font-bold text-brand-900 mb-1">Acceso Administrativo</h3>
-                <p class="text-sm text-slate-500">Ingrese su clave de Coordinación o Dirección.</p>
-            </div>
-            <input type="password" id="in-admin-pass" placeholder="Contraseña..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 outline-none text-center font-mono tracking-widest mb-2 transition">
-            <p id="msg-pass-error" class="text-red-500 text-[11px] font-bold text-center mb-4 hidden bg-red-50 py-1 rounded">Contraseña incorrecta. Intente de nuevo.</p>
-            <div class="flex gap-3 mt-4">
-                <button onclick="window.cerrarModalPassword()" class="w-1/2 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 transition">Cancelar</button>
-                <button onclick="window.verificarPassword()" class="w-1/2 rounded-xl bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-700 transition">Ingresar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Notificación Mejorado -->
-    <div id="modal-mensaje" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center z-[60] transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 transform scale-95 transition-transform slide-up">
-            <div class="text-center">
-                <div id="modal-icono" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-brand-100 mb-6"></div>
-                <h3 class="text-xl font-bold text-slate-900 mb-2" id="modal-titulo">Título</h3>
-                <p class="text-sm text-slate-500 mb-8" id="modal-texto">Mensaje...</p>
-                <button type="button" onclick="window.cerrarModal()" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-brand-600 px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-brand-700 transition">Entendido</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ---------------------------------------------------------
-        // 🚨 CONFIGURACIÓN DE SUPABASE Y SEGURIDAD 🚨
-        // ---------------------------------------------------------
-        
-        // Diccionario de Roles y Contraseñas
-        const ROLES_ACCESO = {
-            "director2026": "GLOBAL",
-            "salud2026": "Salud",
-            "nutri2026": "Nutrición",
-            "wash2026": "WASH",
-            "proteccion2026": "Protección",
-            "edu2026": "Educación",
-            "medios2026": "Medios de Vida"
-        }; 
-        
-        const supabaseUrl = 'https://ynuxronmnmkttxothkax.supabase.co'; 
-        const supabaseKey = 'sb_publishable_p5xCXg1HTJUmlmuD2AOGrA_uVNBEvwY'; 
-        
-        window.supabaseClient = null;
-        if (typeof supabase !== 'undefined') {
-            window.supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-        } else if (window.supabase) {
-            window.supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-        }
-
-        // Variables Globales
-        let rolActual = null; // null = Campo, 'GLOBAL' = Director, 'Sector' = Coordinador
-        let fotoBase64 = "";
-        let reporteActual = null;
-        let datosDashboardGlobal = []; // Almacena todos los reportes para el filtro consolidado
-        let chartSectoresInstance = null; 
-        let chartDemoInstance = null;
-
-        const municipiosPorEstado = {
-            "Distrito Capital": ["Libertador"],
-            "Miranda": ["Acevedo", "Andrés Bello", "Baruta", "Brión", "Buroz", "Carrizal", "Chacao", "Cristóbal Rojas", "El Hatillo", "Guaicaipuro", "Independencia", "Lander", "Los Salias", "Páez", "Paz Castillo", "Pedro Gual", "Plaza", "Simón Bolívar", "Sucre", "Urdaneta", "Zamora"],
-            "La Guaira": ["Vargas"]
+        // Config básica
+        const municipiosPorEstado = { "Distrito Capital": ["Libertador"], "Miranda": ["Sucre", "Chacao", "Baruta", "Guaicaipuro"], "La Guaira": ["Vargas"] };
+        window.actualizarMunicipios = () => {
+            const est = document.getElementById('in-estado').value; const sel = document.getElementById('in-municipio'); sel.innerHTML = '<option value="">Seleccione...</option>';
+            if(est && municipiosPorEstado[est]) { sel.disabled = false; municipiosPorEstado[est].forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`); } else { sel.disabled = true; }
         };
+
+        window.cambiarPista = (v) => { ['vista-selector', 'vista-formulario', 'vista-documento', 'vista-dashboard'].forEach(id => document.getElementById(id).classList.add('hidden')); document.getElementById('vista-'+v).classList.remove('hidden'); window.scrollTo(0,0); };
 
         const configSectores = {
-            "WASH": { icon: "fa-droplet", color: "text-cyan-500", ind: [{ id: "wash_kits", label: "Kits de Higiene Entregados", tipo: "number", icon: "fa-box" }, { id: "wash_litros", label: "Litros de Agua Segura", tipo: "number", icon: "fa-faucet-drip" }, { id: "wash_folletos", label: "Folletos / Material Informativo", tipo: "number", icon: "fa-file-lines" }] },
-            "Salud": { icon: "fa-stethoscope", color: "text-red-500", ind: [{ id: "salud_consultas", label: "Consultas Médicas (Casos)", tipo: "number", icon: "fa-user-doctor" }, { id: "salud_medicamentos", label: "Tratamientos Entregados", tipo: "number", icon: "fa-pills" }, { id: "salud_referencias", label: "Casos Referidos", tipo: "number", icon: "fa-truck-medical" }] },
-            "Nutrición": { icon: "fa-apple-whole", color: "text-orange-500", ind: [{ id: "nutri_tamizajes", label: "Tamizajes Realizados", tipo: "number", icon: "fa-scale-balanced" }, { id: "nutri_suplementos", label: "Suplementos Nutricionales", tipo: "number", icon: "fa-box-open" }, { id: "nutri_charlas", label: "Orientaciones Familiares", tipo: "number", icon: "fa-people-roof" }] },
-            "Protección": { icon: "fa-hands-holding-child", color: "text-purple-500", ind: [{ id: "prot_casos", label: "Casos Remitidos", tipo: "number", icon: "fa-folder-open" }, { id: "prot_psico", label: "Sesiones Apoyo Psicosocial", tipo: "number", icon: "fa-users-viewfinder" }, { id: "prot_material", label: "Material de Derechos", tipo: "number", icon: "fa-scroll" }] },
-            "Educación": { icon: "fa-book-open", color: "text-yellow-500", ind: [{ id: "edu_kits", label: "Kits Escolares", tipo: "number", icon: "fa-backpack" }, { id: "edu_cdi", label: "Sesiones CDI", tipo: "number", icon: "fa-cube" }, { id: "edu_docentes", label: "Material Didáctico Entregado", tipo: "number", icon: "fa-shapes" }] },
-            "Medios de Vida": { icon: "fa-seedling", color: "text-emerald-500", ind: [{ id: "mv_emprendedores", label: "Emprendedores Formados", tipo: "number", icon: "fa-people-group" }, { id: "mv_kits", label: "Kits de Emprendimiento", tipo: "number", icon: "fa-toolbox" }, { id: "mv_asesorias", label: "Asesorías Técnicas", tipo: "number", icon: "fa-comments" }] }
+            "WASH": { icon: "fa-droplet", color: "text-cyan-500", ind: [{ label: "Kits de Higiene Entregados", tipo: "number", icon: "fa-box" }] },
+            "Salud": { icon: "fa-stethoscope", color: "text-red-500", ind: [{ label: "Consultas Médicas (Casos)", tipo: "number", icon: "fa-user-doctor" }] },
+            "Nutrición": { icon: "fa-apple-whole", color: "text-orange-500", ind: [{ label: "Tamizajes Realizados", tipo: "number", icon: "fa-scale-balanced" }] },
+            "Protección": { icon: "fa-hands-holding-child", color: "text-purple-500", ind: [{ label: "Casos Remitidos", tipo: "number", icon: "fa-folder-open" }] },
+            "Educación": { icon: "fa-book-open", color: "text-yellow-500", ind: [{ label: "Kits Escolares", tipo: "number", icon: "fa-backpack" }] },
+            "Medios de Vida": { icon: "fa-seedling", color: "text-emerald-500", ind: [{ label: "Emprendedores Formados", tipo: "number", icon: "fa-people-group" }] }
         };
-
-        window.actualizarMunicipios = () => {
-            const estado = document.getElementById('in-estado').value;
-            const selectMuni = document.getElementById('in-municipio');
-            selectMuni.innerHTML = '<option value="">Seleccione...</option>';
-            if(estado && municipiosPorEstado[estado]) {
-                selectMuni.disabled = false;
-                municipiosPorEstado[estado].forEach(m => {
-                    const opt = document.createElement('option'); opt.value = m; opt.textContent = m; selectMuni.appendChild(opt);
-                });
-            } else { selectMuni.disabled = true; }
-        };
-
-        window.iniciarToggleRol = () => {
-            if (rolActual !== null) {
-                // Si es admin o coordinador, lo pasa a campo directo
-                rolActual = null;
-                actualizarInterfazRol();
-                window.cambiarPista('selector');
-            } else {
-                // Si es campo y quiere entrar al dashboard, pide password
-                document.getElementById('in-admin-pass').value = '';
-                document.getElementById('msg-pass-error').classList.add('hidden');
-                document.getElementById('modal-password').classList.remove('hidden');
-                document.getElementById('modal-password').classList.add('flex');
-            }
-        };
-
-        window.cerrarModalPassword = () => {
-            document.getElementById('modal-password').classList.add('hidden');
-            document.getElementById('modal-password').classList.remove('flex');
-        };
-
-        window.verificarPassword = () => {
-            const pass = document.getElementById('in-admin-pass').value;
-            if (ROLES_ACCESO[pass]) {
-                window.cerrarModalPassword();
-                rolActual = ROLES_ACCESO[pass];
-                actualizarInterfazRol();
-                
-                const tituloMsj = rolActual === 'GLOBAL' ? 'Acceso Directivo' : `Coordinación: ${rolActual}`;
-                const textoMsj = rolActual === 'GLOBAL' 
-                    ? "Modo Director activado. Tienes acceso al panel general de todos los sectores." 
-                    : `Modo Coordinador activado. Tienes acceso exclusivo a las estadísticas y datos de ${rolActual}.`;
-                    
-                window.mostrarModalNotificacion(tituloMsj, textoMsj, "success");
-                window.actualizarDashboard();
-            } else {
-                document.getElementById('msg-pass-error').classList.remove('hidden');
-            }
-        };
-
-        function actualizarInterfazRol() {
-            const btnDash = document.getElementById('btn-tab-dashboard');
-            const txtRol = document.getElementById('texto-rol');
-            const iconRol = document.getElementById('btn-rol');
-            
-            if(rolActual !== null) {
-                btnDash.classList.remove('hidden');
-                txtRol.textContent = rolActual === 'GLOBAL' ? "Modo: Director" : `Coord: ${rolActual.substring(0,6)}.`;
-                
-                // Ajustar el filtro del panel consolidado para que el coordinador no espíe otros sectores
-                const selectorSectorPDF = document.getElementById('filtro-sector');
-                if (rolActual !== 'GLOBAL') {
-                    selectorSectorPDF.value = rolActual;
-                    selectorSectorPDF.disabled = true;
-                    selectorSectorPDF.classList.add('opacity-70', 'cursor-not-allowed', 'bg-slate-200');
-                } else {
-                    selectorSectorPDF.value = "TODOS";
-                    selectorSectorPDF.disabled = false;
-                    selectorSectorPDF.classList.remove('opacity-70', 'cursor-not-allowed', 'bg-slate-200');
-                }
-
-                iconRol.classList.replace('border-brand-200', 'border-secondary-200');
-                iconRol.classList.replace('bg-brand-50', 'bg-secondary-50');
-                iconRol.querySelector('div').classList.replace('bg-brand-500', 'bg-secondary-500');
-            } else {
-                btnDash.classList.add('hidden');
-                txtRol.textContent = "Modo: Campo";
-                iconRol.classList.replace('border-secondary-200', 'border-brand-200');
-                iconRol.classList.replace('bg-secondary-50', 'bg-brand-50');
-                iconRol.querySelector('div').classList.replace('bg-secondary-500', 'bg-brand-500');
-            }
-        }
-
-        window.cambiarPista = (vista) => {
-            ['vista-selector', 'vista-formulario', 'vista-documento', 'vista-dashboard'].forEach(id => { document.getElementById(id).classList.add('hidden'); });
-            const btnForm = document.getElementById('btn-tab-formulario'); const btnDash = document.getElementById('btn-tab-dashboard');
-            btnForm.classList.remove('bg-white', 'shadow-sm', 'text-brand-600', 'bg-slate-100', 'text-slate-700');
-            btnDash.classList.remove('bg-white', 'shadow-sm', 'text-brand-600', 'bg-slate-100', 'text-slate-700');
-            if(vista === 'selector' || vista === 'formulario' || vista === 'documento') {
-                document.getElementById('vista-' + vista).classList.remove('hidden');
-                btnForm.classList.add('bg-white', 'shadow-sm', 'text-brand-600');
-                if(vista !== 'documento') btnDash.classList.add('bg-slate-100', 'text-slate-700');
-            } else if (vista === 'dashboard') {
-                document.getElementById('vista-dashboard').classList.remove('hidden');
-                btnDash.classList.add('bg-white', 'shadow-sm', 'text-brand-600'); btnForm.classList.add('bg-slate-100', 'text-slate-700');
-                window.actualizarDashboard();
-            }
-            window.scrollTo(0,0);
-        };
-
-        window.mostrarModalNotificacion = (titulo, mensaje, tipo) => {
-            const modal = document.getElementById('modal-mensaje');
-            document.getElementById('modal-titulo').textContent = titulo; document.getElementById('modal-texto').textContent = mensaje;
-            const icon = document.getElementById('modal-icono');
-            icon.className = 'mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-6';
-            if(tipo === 'error') { icon.classList.add('bg-red-100'); icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-3xl text-red-500"></i>'; } 
-            else if(tipo === 'success') { icon.classList.add('bg-secondary-100'); icon.innerHTML = '<i class="fa-solid fa-check text-3xl text-secondary-500"></i>'; } 
-            else { icon.classList.add('bg-brand-100'); icon.innerHTML = '<i class="fa-solid fa-circle-info text-3xl text-brand-500"></i>'; }
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-        };
-        window.cerrarModal = () => { const modal = document.getElementById('modal-mensaje'); modal.classList.add('hidden'); modal.classList.remove('flex'); };
 
         window.seleccionarSector = (sector) => {
-            const config = configSectores[sector];
-            document.getElementById('lbl-sector-actual').textContent = sector;
-            document.getElementById('in-sector').value = sector;
-            document.getElementById('icono-sector-actual').className = `fa-solid ${config.icon} ${config.color}`;
-            document.getElementById('lbl-ind-sector').textContent = sector;
+            const conf = configSectores[sector];
+            document.getElementById('lbl-sector-actual').textContent = sector; document.getElementById('in-sector').value = sector;
+            document.getElementById('icono-sector-actual').className = `fa-solid ${conf.icon} ${conf.color}`; document.getElementById('lbl-ind-sector').textContent = sector;
+            const grid = document.getElementById('grid-indicadores'); grid.innerHTML = '';
+            if (conf.ind) { document.getElementById('contenedor-indicadores-sector').classList.remove('hidden'); conf.ind.forEach(i => { grid.innerHTML += `<div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100"><label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase">${i.label}</label><div class="relative"><i class="fa-solid ${i.icon} absolute left-3 top-2.5 text-brand-400"></i><input type="${i.tipo}" min="0" value="0" data-label="${i.label}" class="input-ind w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-lg outline-none focus:border-brand-500"></div></div>`; }); }
+            cambiarPista('formulario');
+        };
+
+        // GPS Logica
+        window.capturarUbicacion = () => {
+            if (navigator.geolocation) {
+                const btn = event.currentTarget; const orig = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => { document.getElementById('in-lat').value = pos.coords.latitude.toFixed(6); document.getElementById('in-lng').value = pos.coords.longitude.toFixed(6); btn.innerHTML = '<i class="fa-solid fa-check text-green-500"></i> Listo'; },
+                    (err) => { alert("No se pudo obtener la ubicación. Verifique permisos."); btn.innerHTML = orig; },
+                    { enableHighAccuracy: true, timeout: 5000 }
+                );
+            } else { alert("GPS no soportado en este navegador."); }
+        };
+
+        // Lógica de Matriz R/No-R
+        window.calcularTotalMatriz = () => {
+            let granTotal = 0;
+            ['nna', 'adulto', 'mayor'].forEach(grp => {
+                let sub = 0;
+                document.querySelectorAll(`.input-demo[data-group="${grp}"]`).forEach(inp => sub += (parseInt(inp.value)||0));
+                document.getElementById(`tot-${grp}`).textContent = sub;
+                granTotal += sub;
+            });
+            document.getElementById('gran-total').textContent = granTotal;
+        };
+
+        let fotoBase64 = "";
+        window.previsualizarFoto = (e) => { const f = e.target.files[0]; if(f){ const r = new FileReader(); r.onload=e=>{ fotoBase64=e.target.result; document.getElementById('foto-preview').src=fotoBase64; document.getElementById('foto-preview-container').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; r.readAsDataURL(f); } };
+
+        let reporteActual = null;
+        window.procesarReporte = () => {
+            const indArr = []; document.querySelectorAll('.input-ind').forEach(i => { if((parseInt(i.value)||0)>0) indArr.push({lbl: i.dataset.label, val: i.value}); });
             
-            const contPrincipal = document.getElementById('contenedor-indicadores-sector');
-            const grid = document.getElementById('grid-indicadores');
-            grid.innerHTML = ''; 
-            
-            if (config.ind) {
-                contPrincipal.classList.remove('hidden');
-                config.ind.forEach(ind => {
-                    grid.innerHTML += `<div class="bg-white p-3 rounded-xl shadow-sm border border-brand-100"><label class="block text-xs font-bold text-slate-600 mb-1.5 uppercase truncate" title="${ind.label}">${ind.label}</label><div class="relative"><i class="fa-solid ${ind.icon} absolute left-3 top-2.5 text-brand-400"></i><input type="${ind.tipo}" min="0" value="0" data-label="${ind.label}" class="input-indicador-dinamico w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none transition font-bold text-slate-800 text-lg"></div></div>`;
-                });
-            } else { contPrincipal.classList.add('hidden'); }
-            window.cambiarPista('formulario');
-        };
-
-        window.calcularTotal = () => {
-            const vals = ['in-ninas', 'in-ninos', 'in-mujeres-adultas', 'in-hombres-adultos', 'in-mujeres-mayores', 'in-hombres-mayores'].map(id => parseInt(document.getElementById(id).value) || 0);
-            document.getElementById('in-total').value = vals.reduce((a, b) => a + b, 0);
-        };
-
-        window.agregarFilaMaterial = () => {
-            const lista = document.getElementById('lista-materiales'); const row = document.createElement('div'); row.className = "flex gap-2 items-center fade-in bg-white p-2 border border-slate-200 rounded-lg";
-            row.innerHTML = `<input type="text" placeholder="Ej. Refrigerios, Mesas" class="mat-nombre flex-grow px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm focus:outline-none focus:border-brand-500"><input type="number" placeholder="Cant." min="1" class="mat-cant w-20 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm focus:outline-none focus:border-brand-500 text-center"><button type="button" onclick="this.parentElement.remove()" class="text-slate-400 hover:text-red-500 px-2 transition"><i class="fa-solid fa-trash"></i></button>`;
-            lista.appendChild(row);
-        };
-
-        window.previsualizarFoto = (event) => {
-            const file = event.target.files[0];
-            if (file) { const reader = new FileReader(); reader.onload = function(e) { fotoBase64 = e.target.result; document.getElementById('foto-preview').src = fotoBase64; document.getElementById('foto-preview-container').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; reader.readAsDataURL(file); }
-        };
-
-        window.procesarReporte = async () => {
-            const reqIds = ['in-profesional', 'in-proyecto', 'in-tema', 'in-fecha', 'in-sector', 'in-estado', 'in-municipio', 'in-comunidad', 'in-descripcion'];
-            let valido = true; reqIds.forEach(id => { const el = document.getElementById(id); if(!el || !el.value.trim()) valido = false; });
-            if(!valido) { window.mostrarModalNotificacion("Datos Incompletos", "Completa todos los campos marcados con (*) antes de generar el informe.", "error"); return; }
-
-            const btn = document.getElementById('btn-generar'); const originalText = btn.innerHTML;
-            btn.innerHTML = `<div class="loader mr-3"></div> Analizando datos...`; btn.disabled = true; btn.classList.add('opacity-75', 'cursor-not-allowed');
-
-            const materialesArr = []; document.querySelectorAll('#lista-materiales > div').forEach(row => { const n = row.querySelector('.mat-nombre').value.trim(); const c = parseInt(row.querySelector('.mat-cant').value) || 0; if(n && c > 0) materialesArr.push({ nombre: n, cantidad: c }); });
-            const indicadoresArr = []; document.querySelectorAll('.input-indicador-dinamico').forEach(input => { const val = parseInt(input.value) || 0; if(val > 0) indicadoresArr.push({ label: input.getAttribute('data-label'), valor: val }); });
+            // Recolectar Matriz Demográfica
+            const demo = [];
+            ['nna', 'adulto', 'mayor'].forEach(grp => {
+                const fila = { 
+                    grupo: grp === 'nna' ? '0-17' : (grp === 'adulto' ? '18-59' : '60+'),
+                    f_nor: parseInt(document.querySelector(`.input-demo[data-group="${grp}"][data-gender="f"][data-type="nor"]`).value)||0,
+                    f_r: parseInt(document.querySelector(`.input-demo[data-group="${grp}"][data-gender="f"][data-type="r"]`).value)||0,
+                    m_nor: parseInt(document.querySelector(`.input-demo[data-group="${grp}"][data-gender="m"][data-type="nor"]`).value)||0,
+                    m_r: parseInt(document.querySelector(`.input-demo[data-group="${grp}"][data-gender="m"][data-type="r"]`).value)||0
+                };
+                fila.sub = fila.f_nor + fila.f_r + fila.m_nor + fila.m_r;
+                demo.push(fila);
+            });
 
             reporteActual = {
-                id: "REP-" + Math.random().toString(36).substr(2, 6).toUpperCase(),
-                profesional: document.getElementById('in-profesional').value.trim(),
-                proyecto: document.getElementById('in-proyecto').value.trim(),
-                tema: document.getElementById('in-tema').value.trim(),
-                fecha: document.getElementById('in-fecha').value,
-                sector: document.getElementById('in-sector').value,
-                estado: document.getElementById('in-estado').value,
-                municipio: document.getElementById('in-municipio').value,
-                comunidad: document.getElementById('in-comunidad').value.trim(),
-                ubicacionCompleta: `${document.getElementById('in-comunidad').value.trim()}, Mun. ${document.getElementById('in-municipio').value}, Edo. ${document.getElementById('in-estado').value}`,
-                ninas: parseInt(document.getElementById('in-ninas').value) || 0, ninos: parseInt(document.getElementById('in-ninos').value) || 0,
-                m_adultas: parseInt(document.getElementById('in-mujeres-adultas').value) || 0, h_adultos: parseInt(document.getElementById('in-hombres-adultos').value) || 0,
-                m_mayores: parseInt(document.getElementById('in-mujeres-mayores').value) || 0, h_mayores: parseInt(document.getElementById('in-hombres-mayores').value) || 0,
-                total: parseInt(document.getElementById('in-total').value) || 0,
-                indicadoresSector: indicadoresArr, materiales: materialesArr, notas: document.getElementById('in-descripcion').value.trim(), foto: fotoBase64, timestamp: new Date().toISOString()
+                id: "REP-" + Math.random().toString(36).substr(2,6).toUpperCase(),
+                profesional: document.getElementById('in-profesional').value,
+                proyecto: document.getElementById('in-proyecto').value, tema: document.getElementById('in-tema').value,
+                fecha: document.getElementById('in-fecha').value, sector: document.getElementById('in-sector').value,
+                comunidad: document.getElementById('in-comunidad').value, inst: document.getElementById('in-establecimiento').value,
+                trans: {
+                    gen: document.getElementById('tgg-gen').checked, aap: document.getElementById('tgg-aap').checked, peas: document.getElementById('tgg-peas').checked
+                },
+                vul: {
+                    disc: document.getElementById('vul-discapacidad').value, emb: document.getElementById('vul-embarazadas').value, ind: document.getElementById('vul-indigenas').value
+                },
+                demografia: demo,
+                total: document.getElementById('gran-total').textContent,
+                indicadores: indArr, notas: document.getElementById('in-descripcion').value, foto: fotoBase64
             };
 
-            await generarVistaDocumento(reporteActual);
-            btn.innerHTML = originalText; btn.disabled = false; btn.classList.remove('opacity-75', 'cursor-not-allowed');
-            window.cambiarPista('documento');
+            pintarDocumento();
+            cambiarPista('documento');
         };
 
-        async function generarVistaDocumento(data) {
-            document.getElementById('doc-id').textContent = data.id; document.getElementById('doc-profesional').textContent = data.profesional; document.getElementById('doc-firma-nombre').textContent = data.profesional; document.getElementById('doc-proyecto').textContent = data.proyecto; document.getElementById('doc-tema').textContent = data.tema; document.getElementById('doc-sector').textContent = data.sector; document.getElementById('doc-fecha').textContent = data.fecha; document.getElementById('doc-ubicacion').textContent = data.ubicacionCompleta;
-            document.getElementById('doc-ninas').textContent = data.ninas; document.getElementById('doc-ninos').textContent = data.ninos; document.getElementById('doc-sub-ninos').textContent = data.ninas + data.ninos;
-            document.getElementById('doc-m-adultas').textContent = data.m_adultas; document.getElementById('doc-h-adultos').textContent = data.h_adultos; document.getElementById('doc-sub-adultos').textContent = data.m_adultas + data.h_adultos;
-            document.getElementById('doc-m-mayores').textContent = data.m_mayores; document.getElementById('doc-h-mayores').textContent = data.h_mayores; document.getElementById('doc-sub-mayores').textContent = data.m_mayores + data.h_mayores;
-            document.getElementById('doc-total').textContent = data.total;
-
-            const docGridInd = document.getElementById('doc-grid-indicadores'); const contDocInd = document.getElementById('contenedor-doc-indicadores'); docGridInd.innerHTML = '';
-            if(data.indicadoresSector.length > 0) { contDocInd.classList.remove('hidden'); data.indicadoresSector.forEach(ind => { docGridInd.innerHTML += `<div class="flex justify-between items-center border-b border-slate-100 pb-2 bg-slate-50 p-2 rounded"><span class="text-slate-600 font-medium">${ind.label}:</span><span class="font-black text-brand-700 text-lg">${ind.valor}</span></div>`; }); } else { contDocInd.classList.add('hidden'); }
-
-            const tbodyMat = document.getElementById('doc-tbody-materiales'); const contTable = document.getElementById('contenedor-doc-materiales'); tbodyMat.innerHTML = '';
-            if(data.materiales.length > 0) { contTable.classList.remove('hidden'); data.materiales.forEach(m => { tbodyMat.innerHTML += `<tr><td class="border border-slate-200 p-2 text-slate-700">${m.nombre}</td><td class="border border-slate-200 p-2 text-center font-bold text-slate-800">${m.cantidad}</td></tr>`; }); } else { contTable.classList.add('hidden'); }
-
-            if(data.foto) { document.getElementById('doc-foto').src = data.foto; document.getElementById('doc-foto').classList.remove('hidden'); document.getElementById('doc-no-foto').classList.add('hidden'); } else { document.getElementById('doc-foto').classList.add('hidden'); document.getElementById('doc-no-foto').classList.remove('hidden'); }
-
-            const divNarrativa = document.getElementById('doc-narrativa-ia');
-            divNarrativa.innerHTML = `<div class="flex items-center justify-center p-6 text-brand-600 bg-brand-50 rounded"><div class="loader mr-3 border-brand-500 border-t-transparent"></div> Analizando notas de campo y elaborando síntesis...</div>`;
+        function pintarDocumento() {
+            const d = reporteActual;
+            document.getElementById('doc-id').textContent = d.id; document.getElementById('doc-proyecto').textContent = d.proyecto;
+            document.getElementById('doc-tema').textContent = d.tema; document.getElementById('doc-sector').textContent = d.sector;
+            document.getElementById('doc-fecha').textContent = d.fecha; document.getElementById('doc-comunidad').textContent = d.comunidad;
+            document.getElementById('doc-inst').textContent = d.inst || 'N/A'; document.getElementById('doc-firma-nombre').textContent = d.profesional;
             
-            let matStr = data.materiales.length > 0 ? data.materiales.map(m => `${m.cantidad} ${m.nombre}`).join(', ') : "Ninguno extra.";
-            let indStr = data.indicadoresSector.length > 0 ? data.indicadoresSector.map(i => `${i.valor} ${i.label}`).join(', ') : "Sin indicadores cuantitativos.";
+            document.getElementById('doc-gen').innerHTML = d.trans.gen ? 'GEN: <i class="fa-solid fa-check text-green-500"></i>' : 'GEN: <i class="fa-solid fa-xmark text-red-500"></i>';
+            document.getElementById('doc-aap').innerHTML = d.trans.aap ? 'AAP: <i class="fa-solid fa-check text-green-500"></i>' : 'AAP: <i class="fa-solid fa-xmark text-red-500"></i>';
+            document.getElementById('doc-peas').innerHTML = d.trans.peas ? 'PEAS: <i class="fa-solid fa-check text-green-500"></i>' : 'PEAS: <i class="fa-solid fa-xmark text-red-500"></i>';
 
-            const prompt = `Eres Analista Técnico Senior de FUNDAINIL (ONG venezolana enfocada en la niñez, familia y desarrollo).
-            Elabora la "Síntesis Técnica" de un reporte de actividad. 
-            Reglas estrictas:
-            1. NO USES RELLENO ni adornos literarios. Ve al grano, usa tono analítico y gerencial.
-            2. Redacta 3 párrafos cortos (Contexto, Resultados, Análisis).
-            3. Devuelve SOLO código HTML usando <p> y <strong> donde aplique.
+            const tb = document.getElementById('doc-tbody-edades'); tb.innerHTML = '';
+            d.demografia.forEach(f => {
+                tb.innerHTML += `<tr><td class="border p-1 bg-slate-50">${f.grupo}</td><td class="border p-1">${f.f_nor}</td><td class="border p-1">${f.f_r}</td><td class="border p-1">${f.m_nor}</td><td class="border p-1">${f.m_r}</td><td class="border p-1 font-bold bg-slate-50">${f.sub}</td></tr>`;
+            });
+            document.getElementById('doc-total').textContent = d.total;
+
+            const dg = document.getElementById('doc-grid-indicadores'); dg.innerHTML = '';
+            if(d.indicadores.length > 0){ d.indicadores.forEach(i => dg.innerHTML+=`<div class="flex justify-between bg-slate-50 p-2 border rounded"><span>${i.lbl}</span><strong class="text-brand-700">${i.val}</strong></div>`); }
             
-            DATOS CRUDOS:
-            - Sector: ${data.sector} | Proyecto: ${data.proyecto} | Tema: ${data.tema}
-            - Notas literales del profesional: "${data.notas}"
-            - Beneficiarios: NNA(${data.ninas + data.ninos}), Adultos(${data.m_adultas + data.h_adultos}), Mayores(${data.m_mayores + data.h_mayores}). Total: ${data.total}.
-            - Logros Operativos: ${indStr}.
-            
-            En el tercer párrafo (Análisis), procesa obligatoriamente las notas del profesional para explicar el impacto real o la respuesta comunitaria, sin parafrasearlo burdamente.`;
-
-            try {
-                // AQUÍ VA TU LLAVE DE GEMINI PARA QUE LA IA REDACTE DE VERDAD
-                const apiKey = ""; 
-                
-                if(!apiKey) {
-                    setTimeout(() => {
-                        divNarrativa.innerHTML = `
-                        <p>En el marco de la estrategia de intervención de FUNDAINIL enfocada en el sector de <strong>${data.sector}</strong>, se desarrolló la actividad correspondiente al proyecto "${data.proyecto}", con especial énfasis en el tema de <strong>${data.tema}</strong>. Esta acción se ejecutó bajo los lineamientos institucionales para fortalecer las capacidades de la población vulnerable.</p>
-                        <p>A nivel de alcance, la intervención logró impactar a un total de <strong>${data.total} personas</strong> en la comunidad. Los resultados operativos específicos reflejan la gestión de: ${indStr}.</p>
-                        <p><strong>Análisis de la Intervención:</strong> Basado en los reportes de campo, se evidencia una recepción positiva de la metodología implementada. Específicamente, las observaciones indican que "${data.notas}". Este nivel de participación resulta fundamental para adaptar el acompañamiento futuro de la organización en la localidad y garantizar la sostenibilidad de las acciones en entornos familiares y comunitarios.</p>`;
-                    }, 1500);
-                    return;
-                }
-
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
-                if (!response.ok) throw new Error(`Error en API: ${response.status}`);
-                const result = await response.json();
-                let textoGenerado = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (textoGenerado) { divNarrativa.innerHTML = textoGenerado.replace(/```html/g, '').replace(/```/g, '').trim(); }
-            } catch(e) {
-                console.error(e);
-                divNarrativa.innerHTML = `<div class="bg-red-50 text-red-600 p-4 rounded-lg"><p class="font-bold mb-1">Error de conexión IA</p></div>`;
-            }
+            document.getElementById('doc-notas').textContent = d.notas;
+            if(d.foto){ document.getElementById('doc-foto').src = d.foto; document.getElementById('doc-foto').classList.remove('hidden'); }
         }
 
-        window.generarPDF = () => { html2pdf().set({ margin: 0, filename: `Reporte_${reporteActual.sector}_${new Date().getTime()}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
-
-        window.guardarReporteBD = async () => {
-            const btn = document.getElementById('btn-guardar-bd'); const originalText = btn.innerHTML;
-            
-            if (!window.supabaseClient) {
-                window.mostrarModalNotificacion("Sin Conexión a Base de Datos", "No se pudo detectar Supabase. Revisa tu conexión a internet o verifica si un AdBlocker lo está bloqueando.", "error");
-                return;
-            }
-
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Subiendo a Supabase...`; btn.disabled = true;
-            try {
-                const { data, error } = await window.supabaseClient.from('reportes').insert([{
-                    reporte_id: reporteActual.id,
-                    fecha: reporteActual.fecha,
-                    sector: reporteActual.sector,
-                    proyecto: reporteActual.proyecto,
-                    profesional: reporteActual.profesional,
-                    total_personas: reporteActual.total,
-                    datos_completos: reporteActual
-                }]);
-                if (error) throw new Error(error.message);
-                
-                window.mostrarModalNotificacion("¡Sincronizado con Éxito!", "El reporte de campo ha sido guardado en la base de datos de FUNDAINIL.", "success");
-                btn.innerHTML = `<i class="fa-solid fa-check mr-2"></i> Guardado`; btn.classList.replace('bg-secondary-600', 'bg-slate-400');
-                
-                setTimeout(() => {
-                    document.getElementById('form-reporte').reset(); document.getElementById('foto-preview-container').classList.add('hidden'); document.getElementById('foto-placeholder').classList.remove('hidden'); fotoBase64 = ""; document.getElementById('lista-materiales').innerHTML = '';
-                    window.cambiarPista('selector'); btn.innerHTML = originalText; btn.disabled = false; btn.classList.replace('bg-slate-400', 'bg-secondary-600');
-                }, 2000);
-            } catch (error) { window.mostrarModalNotificacion("Error al guardar", `Ocurrió un problema: ${error.message}`, "error"); btn.innerHTML = originalText; btn.disabled = false; }
-        };
-
-        window.actualizarDashboard = async () => {
-            try {
-                if (!window.supabaseClient) throw new Error("Cliente Supabase no inicializado.");
-
-                // Base de la consulta
-                let query = window.supabaseClient.from('reportes').select('datos_completos').order('created_at', { ascending: false });
-                
-                // FILTRO DE SEGURIDAD: Si es coordinador, filtra la descarga desde la base de datos
-                if (rolActual !== 'GLOBAL' && rolActual !== null) {
-                    query = query.eq('sector', rolActual);
-                }
-
-                const { data: reportesDB, error } = await query;
-                if (error) throw error;
-                
-                if (reportesDB && reportesDB.length > 0) { 
-                    datosDashboardGlobal = reportesDB.map(fila => fila.datos_completos); 
-                } else { 
-                    // Limpiamos los datos si no hay información de su sector
-                    datosDashboardGlobal = []; 
-                } 
-            } catch (error) { 
-                console.error("Error al cargar datos:", error); 
-                datosDashboardGlobal = []; 
-            }
-            
-            renderizarDashboard(datosDashboardGlobal);
-        };
-
-        function renderizarDashboard(datos) {
-            document.getElementById('dash-total-reportes').textContent = datos.length;
-            document.getElementById('dash-total-personas').textContent = datos.reduce((sum, r) => sum + r.total, 0);
-            document.getElementById('dash-total-ninos').textContent = datos.reduce((sum, r) => sum + r.ninas + r.ninos, 0);
-            document.getElementById('dash-total-sectores').textContent = [...new Set(datos.map(r => r.sector))].length;
-
-            const tbody = document.getElementById('tabla-reportes-dash'); tbody.innerHTML = '';
-            datos.slice(0, 8).forEach(r => {
-                const config = configSectores[r.sector] || { color: 'text-slate-500', icon: 'fa-tag' };
-                tbody.innerHTML += `<tr class="bg-white border-b border-slate-100 hover:bg-slate-50 transition"><td class="px-6 py-4 font-medium">${r.fecha}</td><td class="px-6 py-4"><span class="${config.color} bg-slate-100 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider inline-flex items-center"><i class="fa-solid ${config.icon} mr-1.5"></i> ${r.sector}</span></td><td class="px-6 py-4 truncate max-w-[200px]" title="${r.proyecto}">${r.proyecto}</td><td class="px-6 py-4">${r.profesional}</td><td class="px-6 py-4 text-center font-bold text-slate-800 bg-slate-50/50">${r.total}</td></tr>`;
-            });
-
-            if(chartSectoresInstance) chartSectoresInstance.destroy(); if(chartDemoInstance) chartDemoInstance.destroy();
-            const porSector = {}; datos.forEach(r => { porSector[r.sector] = (porSector[r.sector] || 0) + r.total; });
-            chartSectoresInstance = new Chart(document.getElementById('chartSectores').getContext('2d'), { type: 'doughnut', data: { labels: Object.keys(porSector), datasets: [{ data: Object.values(porSector), backgroundColor: ['#002855', '#2563eb', '#60a5fa', '#93c5fd', '#f59e0b', '#10b981'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '70%' } });
-            
-            const [tNinas, tNinos, tMAdultas, tHAdultos, tMMayores, tHMayores] = [datos.reduce((s, r) => s+r.ninas,0), datos.reduce((s, r) => s+r.ninos,0), datos.reduce((s, r) => s+r.m_adultas,0), datos.reduce((s, r) => s+r.h_adultos,0), datos.reduce((s, r) => s+r.m_mayores,0), datos.reduce((s, r) => s+r.h_mayores,0)];
-            chartDemoInstance = new Chart(document.getElementById('chartDemografia').getContext('2d'), { type: 'bar', data: { labels: ['Niñas/Niños', 'Mujeres/Hombres (18-59)', 'Mujeres/Hombres (60+)'], datasets: [{ label: 'Femenino', data: [tNinas, tMAdultas, tMMayores], backgroundColor: '#2563eb', borderRadius: 4 }, { label: 'Masculino', data: [tNinos, tHAdultos, tHMayores], backgroundColor: '#93c5fd', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false } });
-        }
-
-        window.generarPDFConsolidado = () => {
-            const filtroSector = document.getElementById('filtro-sector').value;
-            const fechaIn = document.getElementById('filtro-fecha-inicio').value;
-            const fechaFi = document.getElementById('filtro-fecha-fin').value;
-
-            // Filtrar los datos
-            let datosFiltrados = datosDashboardGlobal;
-            if (filtroSector !== 'TODOS') {
-                datosFiltrados = datosFiltrados.filter(r => r.sector === filtroSector);
-            }
-            if (fechaIn) {
-                datosFiltrados = datosFiltrados.filter(r => new Date(r.fecha) >= new Date(fechaIn));
-            }
-            if (fechaFi) {
-                datosFiltrados = datosFiltrados.filter(r => new Date(r.fecha) <= new Date(fechaFi));
-            }
-
-            if (datosFiltrados.length === 0) {
-                window.mostrarModalNotificacion("Sin datos", "No hay reportes que coincidan con los filtros seleccionados.", "error");
-                return;
-            }
-
-            // Calcular Acumulados
-            const [tNinas, tNinos, tMAdultas, tHAdultos, tMMayores, tHMayores] = [datosFiltrados.reduce((s, r) => s+r.ninas,0), datosFiltrados.reduce((s, r) => s+r.ninos,0), datosFiltrados.reduce((s, r) => s+r.m_adultas,0), datosFiltrados.reduce((s, r) => s+r.h_adultos,0), datosFiltrados.reduce((s, r) => s+r.m_mayores,0), datosFiltrados.reduce((s, r) => s+r.h_mayores,0)];
-            const totalBeneficiarios = datosFiltrados.reduce((sum, r) => sum + r.total, 0);
-
-            // Poblar vista oculta
-            const f = new Date();
-            document.getElementById('cons-fecha-emision').textContent = `Generado el: ${f.toLocaleDateString()}`;
-            document.getElementById('cons-filtro-sector').textContent = filtroSector === 'TODOS' ? 'Todos los Sectores Integrados' : filtroSector;
-            document.getElementById('cons-filtro-fechas').textContent = (fechaIn && fechaFi) ? `Desde ${fechaIn} hasta ${fechaFi}` : 'Histórico Completo';
-            document.getElementById('cons-total-actividades').textContent = datosFiltrados.length;
-            document.getElementById('cons-total-poblacion').textContent = totalBeneficiarios;
-
-            document.getElementById('cons-ninas').textContent = tNinas; document.getElementById('cons-ninos').textContent = tNinos; document.getElementById('cons-sub-ninos').textContent = tNinas + tNinos;
-            document.getElementById('cons-m-adultas').textContent = tMAdultas; document.getElementById('cons-h-adultos').textContent = tHAdultos; document.getElementById('cons-sub-adultos').textContent = tMAdultas + tHAdultos;
-            document.getElementById('cons-m-mayores').textContent = tMMayores; document.getElementById('cons-h-mayores').textContent = tHMayores; document.getElementById('cons-sub-mayores').textContent = tMMayores + tHMayores;
-
-            const tbodyAct = document.getElementById('cons-tbody-actividades');
-            tbodyAct.innerHTML = '';
-            datosFiltrados.forEach(r => {
-                tbodyAct.innerHTML += `<tr><td class="border border-slate-200 p-2">${r.fecha}</td><td class="border border-slate-200 p-2 font-bold">${r.sector}</td><td class="border border-slate-200 p-2">${r.proyecto}</td><td class="border border-slate-200 p-2">${r.profesional}</td><td class="border border-slate-200 p-2 font-bold text-center">${r.total}</td></tr>`;
-            });
-
-            // Mostrar, Imprimir y Ocultar
-            const viewPdf = document.getElementById('vista-pdf-consolidado');
-            viewPdf.classList.remove('hidden');
-            
-            html2pdf().set({ 
-                margin: 0, filename: `Consolidado_${filtroSector}_${new Date().getTime()}.pdf`, 
-                image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
-            }).from(document.getElementById('documento-consolidado')).save().then(() => {
-                viewPdf.classList.add('hidden');
-            });
-        };
-
-        function generarDatosDemoFUNDAINIL() { return [ 
-            { fecha: '2026-08-20', sector: 'Medios de Vida', proyecto: 'Capacidades Emprendedoras', profesional: 'Econ. Rosa Díaz', tema: 'Finanzas Básicas', total: 25, ninas: 0, ninos: 0, m_adultas: 15, h_adultos: 8, m_mayores: 1, h_mayores: 1 },
-            { fecha: '2026-08-21', sector: 'Educación', proyecto: 'Espacios Amigables', profesional: 'Lic. Juan Pérez', tema: 'Cuidado para el Desarrollo', total: 40, ninas: 20, ninos: 15, m_adultas: 5, h_adultos: 0, m_mayores: 0, h_mayores: 0 },
-            { fecha: '2026-08-22', sector: 'Protección', proyecto: 'Prevención VBG', profesional: 'Abg. María López', tema: 'Rutas de Atención', total: 18, ninas: 0, ninos: 0, m_adultas: 16, h_adultos: 2, m_mayores: 0, h_mayores: 0 }
-        ]; }
-        
-        window.onload = () => window.cambiarPista('selector');
+        window.generarPDF = () => { html2pdf().set({ margin: 0, filename: `Reporte_${reporteActual.id}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
+        window.onload = () => cambiarPista('selector');
     </script>
 </body>
 </html>
