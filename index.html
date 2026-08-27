@@ -208,14 +208,14 @@
                         </div>
                     </div>
 
-                    <!-- 6. Análisis Cualitativo Híbrido -->
+                    <!-- 6. Análisis Cualitativo Híbrido + INTEGRACIÓN IA -->
                     <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2"><i class="fa-solid fa-pen-nib mr-2"></i>6. Análisis Cualitativo de Campo</h3>
                         
                         <!-- Termómetro -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">Termómetro Comunitario (Receptividad) *</label>
-                            <select id="in-receptividad" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500">
+                            <select id="in-receptividad" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm">
                                 <option value="">Selecciona cómo estuvo el ambiente en la comunidad...</option>
                                 <option value="Excelente (Participativa y abierta)">Excelente (Participativa y abierta)</option>
                                 <option value="Buena (Atenta pero pasiva)">Buena (Atenta pero pasiva)</option>
@@ -227,11 +227,11 @@
                         <!-- Bloques de Texto -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Logros e Impacto *</label>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Logros e Impacto (Apuntes crudos) *</label>
                                 <textarea id="in-logros" required rows="3" placeholder="Ej. Los niños comprendieron el ciclo del agua. Se logró conformar el comité..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none resize-none text-sm focus:ring-2 focus:ring-brand-500"></textarea>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Desafíos o Nudos Críticos *</label>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Desafíos o Nudos Críticos (Apuntes crudos) *</label>
                                 <textarea id="in-desafios" required rows="3" placeholder="Ej. Lluvia retrasó el inicio. Falta de espacio físico adecuado. Resistencia inicial..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none resize-none text-sm focus:ring-2 focus:ring-brand-500"></textarea>
                             </div>
                         </div>
@@ -242,6 +242,22 @@
                             <div class="relative">
                                 <i class="fa-solid fa-quote-left absolute left-4 top-3 text-brand-300"></i>
                                 <input type="text" id="in-testimonio" placeholder="Frase textual. Ej. 'Nunca nos habían enseñado esto' - María, 34 años" class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm italic">
+                            </div>
+                        </div>
+
+                        <!-- MÓDULO ASISTENTE IA -->
+                        <div class="mt-8 bg-blue-50/50 p-6 rounded-2xl border border-blue-200 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 p-10 bg-blue-500 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
+                            <h4 class="text-sm font-bold uppercase tracking-wider text-blue-800 mb-3 relative z-10"><i class="fa-solid fa-robot mr-2"></i>Asistente de Redacción Automática IA</h4>
+                            <p class="text-xs text-blue-600 mb-5 relative z-10">La inteligencia artificial leerá tus apuntes crudos de arriba y redactará la narrativa profesional por ti.</p>
+                            
+                            <button type="button" onclick="generarNarrativaAutomatica()" id="btn-ia-auto" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition-all flex items-center justify-center relative z-10 mb-5">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> ✨ Redactar Informe Automáticamente
+                            </button>
+                            
+                            <div>
+                                <label class="block text-sm font-semibold text-blue-900 mb-1.5 relative z-10">Narrativa Final Generada (Puedes editarla si quieres) *</label>
+                                <textarea id="in-narrativa-final" required rows="5" placeholder="Haz clic en el botón de arriba y la IA escribirá el informe final aquí..." class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl outline-none resize-none text-sm focus:ring-2 focus:ring-blue-500 relative z-10 shadow-inner"></textarea>
                             </div>
                         </div>
                     </div>
@@ -285,7 +301,7 @@
                     
                     <div class="pt-6 border-t border-slate-200">
                         <button type="button" onclick="procesarReporte()" id="btn-generar" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex justify-center items-center text-lg">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-3"></i> Procesar y Generar Informe
+                            <i class="fa-solid fa-wand-magic-sparkles mr-3"></i> Procesar y Generar Informe Oficial
                         </button>
                     </div>
                 </form>
@@ -378,7 +394,6 @@
 
     <script>
         window.supabaseClient = window.supabase.createClient('https://ynuxronmnmkttxothkax.supabase.co', 'sb_publishable_p5xCXg1HTJUmlmuD2AOGrA_uVNBEvwY');
-
         let dbSectores = [], dbTemas = [], dbActividades = [], dbEdades = [], dbIndicadores = [];
         let rolActual = 'campo', sectorFiltroActivo = null;
         let reporteActual = null;
@@ -437,29 +452,31 @@
                 <td class="p-3 font-bold bg-slate-100" id="tot-fila-${i}">0</td></tr>`;
             });
 
-            // Lógica Unificada para Indicadores y Folletos
+            // Lógica Unificada para Indicadores, Folletos y Casos
+            const contPrincipal = document.getElementById('contenedor-indicadores-sector');
             const contMateriales = document.getElementById('contenedor-materiales');
             const gridMateriales = document.getElementById('grid-materiales-carrusel');
             const contFolletos = document.getElementById('contenedor-folletos');
             const gridFolletos = document.getElementById('grid-folletos-carrusel');
             
-            gridMateriales.innerHTML = '';
-            gridFolletos.innerHTML = '';
-            
+            gridMateriales.innerHTML = ''; gridFolletos.innerHTML = '';
             const inds = dbIndicadores.filter(i => i.sector_id === sectorId);
-            
-            let tieneMateriales = false;
-            let tieneFolletos = false;
+            let tieneMateriales = false; let tieneFolletos = false;
 
             inds.forEach(ind => {
                 let htmlCard = '';
+                const esAgua = /agua/i.test(ind.etiqueta) && !ind.imagen_url;
+                const esMaterial = /kit|jabón|jabon|pastilla|filtro/i.test(ind.etiqueta);
 
-                if (ind.imagen_url) {
+                if (ind.imagen_url || esAgua) {
+                    const imgSrc = ind.imagen_url ? `<img src="${ind.imagen_url}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform">` : `<i class="fa-solid fa-glass-water text-4xl text-blue-300"></i>`;
+                    const hasMagnifier = ind.imagen_url ? `<div class="absolute inset-0 bg-brand-900/40 hidden group-hover:flex items-center justify-center"><i class="fa-solid fa-magnifying-glass-plus text-white text-3xl"></i></div>` : '';
+                    const onclickStr = ind.imagen_url ? `onclick="abrirVisor('${ind.imagen_url}', '${ind.etiqueta}')"` : '';
+
                     htmlCard = `
                         <div class="snap-start shrink-0 w-48 bg-white p-3 rounded-xl shadow-sm border border-brand-200 flex flex-col items-center hover:shadow-md transition">
-                            <div class="h-28 w-full flex items-center justify-center mb-2 bg-slate-50 rounded border border-slate-200 overflow-hidden relative cursor-pointer group" onclick="abrirVisor('${ind.imagen_url}', '${ind.etiqueta}')">
-                                <img src="${ind.imagen_url}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform">
-                                <div class="absolute inset-0 bg-brand-900/40 hidden group-hover:flex items-center justify-center"><i class="fa-solid fa-magnifying-glass-plus text-white text-3xl"></i></div>
+                            <div class="h-28 w-full flex items-center justify-center mb-2 bg-slate-50 rounded border border-slate-200 overflow-hidden relative ${ind.imagen_url ? 'cursor-pointer group' : ''}" ${onclickStr}>
+                                ${imgSrc} ${hasMagnifier}
                             </div>
                             <label class="block text-[10px] font-bold text-slate-700 mb-2 leading-tight h-8 text-center overflow-hidden flex items-center justify-center">${ind.etiqueta}</label>
                             <div class="flex items-center w-full bg-slate-50 rounded border border-slate-200 mt-auto">
@@ -467,125 +484,243 @@
                                 <input type="number" min="0" value="0" data-label="${ind.etiqueta}" class="input-indicador-dinamico w-full text-center py-1 font-bold text-sm outline-none">
                             </div>
                         </div>`;
-                } else {
-                    htmlCard = `
-                        <div class="snap-start shrink-0 w-48 bg-white p-3 rounded-xl shadow-sm border border-brand-200 flex flex-col items-center hover:shadow-md transition">
-                            <div class="h-28 w-full flex items-center justify-center mb-2 bg-brand-50 rounded border border-brand-100 overflow-hidden">
-                                <i class="fa-solid ${ind.icono || 'fa-hashtag'} text-4xl text-brand-300"></i>
-                            </div>
-                            <label class="block text-[10px] font-bold text-slate-700 mb-2 leading-tight h-8 text-center overflow-hidden flex items-center justify-center">${ind.etiqueta}</label>
-                            <div class="flex items-center w-full bg-slate-50 rounded border border-slate-200 mt-auto">
-                                <span class="text-[9px] text-slate-500 font-bold px-2 bg-slate-100 border-r py-2">CANT</span>
-                                <input type="${ind.tipo || 'number'}" min="0" value="0" data-label="${ind.etiqueta}" class="input-indicador-dinamico w-full text-center py-1 font-bold text-sm outline-none focus:ring-2 focus:ring-brand-500">
-                            </div>
-                        </div>`;
-                }
-
-                // Si contiene palabra clave de Insumo o NO tiene imagen (ej. Litros de agua), va a Insumos Físicos
-                const isFolleto = ind.imagen_url && !(/kit|jabón|jabon|pastilla|filtro|insumo|agua|litro/i.test(ind.etiqueta));
-
-                if(isFolleto) { 
-                    gridFolletos.innerHTML += htmlCard; 
-                    tieneFolletos = true; 
-                } else { 
-                    gridMateriales.innerHTML += htmlCard; 
-                    tieneMateriales = true; 
+                        
+                    if (esMaterial || esAgua) {
+                        gridMateriales.innerHTML += htmlCard;
+                        tieneMateriales = true;
+                    } else {
+                        gridFolletos.innerHTML += htmlCard;
+                        tieneFolletos = true;
+                    }
                 }
             });
 
-            contMateriales.classList.toggle('hidden', !tieneMateriales);
-            contFolletos.classList.toggle('hidden', !tieneFolletos);
+            if (tieneMateriales) contMateriales.classList.remove('hidden'); else contMateriales.classList.add('hidden');
+            if (tieneFolletos) contFolletos.classList.remove('hidden'); else contFolletos.classList.add('hidden');
             
-            document.getElementById('contenedor-indicadores-sector').classList.toggle('hidden', inds.length === 0);
-            
-            // Lógica para mostrar módulo exclusivo de Protección
-            document.getElementById('contenedor-casos-proteccion').classList.toggle('hidden', sectorId !== 'proteccion');
-            document.getElementById('lista-casos-proteccion').innerHTML = '';
-            if(sectorId === 'proteccion') window.agregarCasoProteccion(); 
-            
-            calcularTotalMatriz(); cambiarPista('formulario');
+            if (tieneMateriales || tieneFolletos) {
+                contPrincipal.classList.remove('hidden');
+            } else {
+                contPrincipal.classList.add('hidden');
+            }
+
+            // Módulo de Casos Exclusivo para Protección
+            const contCasos = document.getElementById('contenedor-casos-proteccion');
+            if (sectorId === 'proteccion') contCasos.classList.remove('hidden'); else contCasos.classList.add('hidden');
+
+            cambiarPista('formulario');
         };
 
         window.agregarCasoProteccion = () => {
             const div = document.createElement('div');
-            div.className = 'caso-fila bg-white p-4 rounded-xl border border-purple-200 shadow-sm relative group fade-in space-y-3';
+            div.className = 'caso-fila bg-white p-4 rounded-xl border border-purple-100 shadow-sm relative group mb-3';
             div.innerHTML = `
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                    <div class="sm:col-span-6"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Nombre del Caso (Víctima/NNA)</label><input type="text" placeholder="Ej. Juan Pérez" class="caso-nna w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"></div>
-                    <div class="sm:col-span-3"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Edad</label><input type="number" min="0" placeholder="Años" class="caso-edad w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"></div>
-                    <div class="sm:col-span-3"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Género</label><select class="caso-genero w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"><option value="M">M</option><option value="F">F</option></select></div>
+                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-sm hover:bg-red-200"><i class="fa-solid fa-xmark text-xs"></i></button>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-1">Víctima / Sobreviviente</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="text" placeholder="Iniciales (Ej. J.P.)" class="caso-nna col-span-3 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300">
+                            <input type="number" placeholder="Edad" class="caso-edad col-span-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300">
+                            <select class="caso-genero col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300"><option value="">Género...</option><option value="M">Masculino</option><option value="F">Femenino</option><option value="Otro">Otro</option></select>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 pb-1">Cuidador (Si aplica)</h4>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="text" placeholder="Nombre Cuidador" class="caso-cuidador col-span-3 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300">
+                            <input type="number" placeholder="Edad" class="caso-edad-cuidador col-span-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300">
+                            <select class="caso-genero-cuidador col-span-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300"><option value="">Género...</option><option value="M">Masculino</option><option value="F">Femenino</option><option value="Otro">Otro</option></select>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <input type="text" placeholder="Breve observación del caso / Motivo de atención..." class="caso-obs w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded text-sm outline-none focus:border-purple-300 text-slate-600">
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
-                    <div class="sm:col-span-12 mb-[-5px]"><span class="text-[10px] uppercase text-slate-400 font-bold">Datos del Cuidador / Representante (Si aplica)</span></div>
-                    <div class="sm:col-span-6"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Nombre del Cuidador</label><input type="text" placeholder="Opcional..." class="caso-cuidador w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"></div>
-                    <div class="sm:col-span-3"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Edad Cuidador</label><input type="number" min="0" placeholder="Años" class="caso-edad-cuidador w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"></div>
-                    <div class="sm:col-span-3"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Género Cuidador</label><select class="caso-genero-cuidador w-full px-3 py-2 bg-white border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"><option value="">N/A</option><option value="M">M</option><option value="F">F</option></select></div>
-                </div>
-                <div class="grid grid-cols-1"><label class="text-[10px] uppercase text-slate-500 font-bold block mb-1">Observación / Motivo / Remisión</label><input type="text" placeholder="Breve descripción del caso de violencia, abandono, etc..." class="caso-obs w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none text-sm focus:ring-2 focus:ring-purple-400"></div>
-                <button type="button" onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-red-100 text-red-500 rounded-full flex items-center justify-center hover:bg-red-500 hover:text-white transition opacity-0 group-hover:opacity-100 shadow-sm"><i class="fa-solid fa-xmark text-xs"></i></button>
             `;
             document.getElementById('lista-casos-proteccion').appendChild(div);
         };
+
+        // ====== LÓGICA DE INTELIGENCIA ARTIFICIAL AUTOMÁTICA ======
+        window.generarNarrativaAutomatica = async () => {
+            const apiKey = ""; 
+
+            const btn = document.getElementById('btn-ia-auto');
+            const oText = btn.innerHTML;
+            const cajaNarrativa = document.getElementById('in-narrativa-final');
+
+            const logros = document.getElementById('in-logros').value;
+            const desafios = document.getElementById('in-desafios').value;
+
+            if (!logros || !desafios || logros.trim() === '' || desafios.trim() === '') {
+                cajaNarrativa.value = "⚠️ Por favor, escribe algunos logros o desafíos en los cuadros de arriba antes de invocar a la IA para tener un contexto base.";
+                return;
+            }
+
+            // --- RECOPILACIÓN EXHAUSTIVA DE DATOS PARA EL INFORME ROBUSTO ---
+            const profesional = document.getElementById('in-profesional').value || 'Profesional de campo';
+            const fecha = document.getElementById('in-fecha').value || 'Fecha no especificada';
+            const sector = document.getElementById('in-sector-nombre').value || 'el sector asignado';
+            const actividad = document.getElementById('in-actividad').value || 'la actividad principal';
+            const tema = document.getElementById('in-tema').value || 'el tema central';
+            
+            const estado = document.getElementById('in-estado').value || '';
+            const municipio = document.getElementById('in-municipio').value || '';
+            const parroquia = document.getElementById('in-parroquia').value || '';
+            const comunidad = document.getElementById('in-comunidad').value || 'la comunidad';
+            const ubicacionCompleta = `${comunidad}, Pq. ${parroquia}, Mun. ${municipio}, Edo. ${estado}`;
+
+            const receptividad = document.getElementById('in-receptividad').value || 'No especificada';
+            const testimonio = document.getElementById('in-testimonio').value || 'Ninguno proporcionado.';
+            const poblacionTotal = document.getElementById('gran-total').textContent;
+            
+            // Recopilando Vulnerabilidades
+            const disc = document.getElementById('vul-discapacidad').value;
+            const emb = document.getElementById('vul-embarazadas').value;
+            const adolEmb = document.getElementById('vul-adol-emb').value;
+            const lgbti = document.getElementById('vul-lgbti').value;
+            const ind = document.getElementById('vul-indigenas').value;
+
+            // Recopilando Transversales
+            const gen = document.getElementById('tgg-gen').checked ? 'Sí' : 'No';
+            const aap = document.getElementById('tgg-aap').checked ? 'Sí' : 'No';
+            const peas = document.getElementById('tgg-peas').checked ? 'Sí' : 'No';
+
+            // Recopilando Edades Dinámicamente
+            let demografiaTexto = '';
+            document.querySelectorAll('#tbody-edades-dinamico tr').forEach(tr => {
+                const inputs = tr.querySelectorAll('.input-demo');
+                if(inputs.length === 4) {
+                    const grupo = inputs[0].dataset.edad;
+                    const totalFila = (parseInt(inputs[0].value)||0) + (parseInt(inputs[1].value)||0) + (parseInt(inputs[2].value)||0) + (parseInt(inputs[3].value)||0);
+                    if (totalFila > 0) demografiaTexto += `- ${grupo}: ${totalFila} personas.\n`;
+                }
+            });
+
+            // Recopilando Insumos y Folletos Entregados
+            let cuantitativosTexto = '';
+            document.querySelectorAll('.input-indicador-dinamico').forEach(i => {
+                const val = parseInt(i.value)||0; 
+                if(val > 0) cuantitativosTexto += `- ${val} ${i.dataset.label}\n`;
+            });
+            document.querySelectorAll('.mat-nombre').forEach((el, i) => { 
+                const c = parseInt(document.querySelectorAll('.mat-cant')[i].value)||0; 
+                if(el.value && c > 0) cuantitativosTexto += `- ${c} ${el.value} (Insumo Genérico)\n`; 
+            });
+            if (cuantitativosTexto === '') cuantitativosTexto = 'Ninguna entrega material reportada.';
+
+            // Recopilando Casos de Protección (Si aplica)
+            let casosTexto = '';
+            if(document.getElementById('in-sector-id').value === 'proteccion') {
+                document.querySelectorAll('.caso-fila').forEach((fila, idx) => {
+                    const nna = fila.querySelector('.caso-nna').value;
+                    if(nna) { 
+                        casosTexto += `- Caso Gestionado ${idx+1}: Identificador/Iniciales ${nna} (Edad: ${fila.querySelector('.caso-edad').value||'N/A'}, Género: ${fila.querySelector('.caso-genero').value||'N/A'}). Observación o Motivo: ${fila.querySelector('.caso-obs').value||'N/A'}\n`; 
+                    }
+                });
+            }
+
+            const prompt = `Analiza detalladamente todos los datos cruzados de la siguiente intervención de campo y redacta un "Informe Cualitativo y Cuantitativo de Terreno" robusto, completo y analítico de 3 o 4 párrafos.
+
+Debes usar lenguaje técnico humanitario, tono neutral, empático y profesional (similar a los reportes de OCHA o UNICEF). Debes integrar de manera fluida en los párrafos las fechas, lugares, estadísticas poblacionales, los materiales exactos que se entregaron, las vulnerabilidades identificadas y los casos individuales gestionados (si los hubo), cruzándolos lógicamente con los logros y nudos críticos aportados por el oficial. No los enlistes de forma robótica, téjelos en una narración cohesiva que demuestre el contexto y el impacto. OMITIR EL FORMATO MARKDOWN (no uses asteriscos ni negritas), escribe solo texto plano en prosa limpia.
+
+DATOS EXHAUSTIVOS DE LA INTERVENCIÓN:
+- Oficial a cargo: ${profesional}
+- Fecha de ejecución: ${fecha}
+- Localidad: ${ubicacionCompleta}
+- Marco de Acción: Sector ${sector}, Actividad "${actividad}" orientada a "${tema}".
+- Termómetro Comunitario de Receptividad: ${receptividad}
+
+MÉTRICAS Y DEMOGRAFÍA DE PARTICIPANTES:
+- Total general alcanzado: ${poblacionTotal} personas.
+- Desglose de asistentes por edad:
+${demografiaTexto}
+- Mapa de Vulnerabilidades Presentes: Personas con Discapacidad (${disc}), Mujeres Embarazadas/Lactantes (${emb}), Adolescentes Emb/Lactantes (${adolEmb}), Personas LGBTI (${lgbti}), Población Indígena (${ind}).
+
+ENFOQUES TRANSVERSALES APLICADOS EN LA ACCIÓN:
+- Enfoque de Género integrado: ${gen}
+- Rendición de Cuentas (AAP) aplicada: ${aap}
+- Prevención de Explotación (PEAS) abordada: ${peas}
+
+LOGROS CUANTITATIVOS (Materiales y herramientas entregadas):
+${cuantitativosTexto}
+${casosTexto ? `\nIDENTIFICACIÓN Y GESTIÓN DE CASOS INDIVIDUALES:\n${casosTexto}` : ''}
+
+NOTAS ANALÍTICAS CRUDAS DEL PROFESIONAL:
+- Logros e impacto directo: ${logros}
+- Desafíos operativos, logísticos o sociales (Nudos Críticos): ${desafios}
+- Testimonio de la comunidad recabado: ${testimonio}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "Actúa como un Oficial Senior de Monitoreo y Evaluación (M&E) y Gestor de Proyectos de una ONG Internacional de primer nivel." }]
+                }
+            };
+            
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> La IA está redactando...';
+                btn.disabled = true;
+                cajaNarrativa.value = "Pensando, interpretando y cruzando las métricas, insumos y notas del terreno...";
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
+                    let textoLimpiado = data.candidates[0].content.parts[0].text;
+                    textoLimpiado = textoLimpiado.replace(/\*/g, '').trim(); 
+                    cajaNarrativa.value = textoLimpiado;
+                } else {
+                    cajaNarrativa.value = "⚠️ La inteligencia artificial no pudo procesar la información. Verifica tu conexión.";
+                }
+            } catch (error) {
+                console.error(error);
+                cajaNarrativa.value = "⚠️ Hubo un error de conexión con la IA. Asegúrate de tener conexión a internet e intenta nuevamente.";
+            } finally {
+                btn.innerHTML = oText;
+                btn.disabled = false;
+            }
+        };
+        // ===============================================
 
         window.subirFolletoBD = async () => {
             const sectorId = document.getElementById('conf-sector').value;
             const titulo = document.getElementById('conf-nombre').value;
             const inputFile = document.getElementById('conf-foto');
             
-            if(!sectorId || !titulo || !inputFile.files[0]) {
-                alert("Por favor completa todos los campos y selecciona una imagen.");
-                return;
-            }
+            if(!sectorId || !titulo || !inputFile.files[0]) { alert("Por favor completa todos los campos."); return; }
 
-            const btn = document.getElementById('btn-subir-folleto');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Publicando...';
-            btn.disabled = true;
+            const btn = document.getElementById('btn-subir-folleto'); const oText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Publicando...'; btn.disabled = true;
 
             try {
-                const file = inputFile.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
+                const f = inputFile.files[0]; const r = new FileReader();
+                r.onload = function(e) {
                     const img = new Image();
                     img.onload = async function() {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 600; const MAX_HEIGHT = 600;
-                        let width = img.width, height = img.height;
-
-                        if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-                        } else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
-                        
-                        canvas.width = width; canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        const imagenComprimidaBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        const cvs = document.createElement('canvas');
+                        let w = img.width, h = img.height;
+                        if(w > h) { if(w > 600) { h *= 600/w; w = 600; } } else { if(h > 600) { w *= 600/h; h = 600; } }
+                        cvs.width = w; cvs.height = h;
+                        const ctx = cvs.getContext('2d'); ctx.drawImage(img, 0, 0, w, h);
+                        const b64 = cvs.toDataURL('image/jpeg', 0.7);
                         
                         try {
-                            const { data, error } = await window.supabaseClient.from('indicadores').insert([
-                                    { sector_id: sectorId, etiqueta: titulo, imagen_url: imagenComprimidaBase64, tipo: 'number' }
-                                ]);
-
-                            if (error) throw error;
-                            
-                            alert("¡Material publicado con éxito!");
-                            document.getElementById('form-nuevo-folleto').reset();
-                            
-                            const resInd = await window.supabaseClient.from('indicadores').select('*');
-                            dbIndicadores = resInd.data || [];
-                        } catch (err) {
-                            console.error(err); alert("Hubo un error al guardar en la base de datos.");
-                        } finally { btn.innerHTML = originalText; btn.disabled = false; }
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-
-            } catch (err) {
-                console.error(err); alert("Hubo un error al procesar la imagen localmente.");
-                btn.innerHTML = originalText; btn.disabled = false;
-            }
+                            const { error } = await window.supabaseClient.from('indicadores').insert([{ sector_id: sectorId, etiqueta: titulo, imagen_url: b64, tipo: 'number' }]);
+                            if(error) throw error;
+                            alert("¡Material publicado con éxito!"); document.getElementById('form-nuevo-folleto').reset();
+                            const resInd = await window.supabaseClient.from('indicadores').select('*'); dbIndicadores = resInd.data || [];
+                        } catch(err) { alert("Error al guardar en BD."); } finally { btn.innerHTML = oText; btn.disabled = false; }
+                    }; img.src = e.target.result;
+                }; r.readAsDataURL(f);
+            } catch(err) { alert("Error local."); btn.innerHTML = oText; btn.disabled = false; }
         };
 
         window.calcularTotalMatriz = () => {
@@ -631,7 +766,7 @@
         };
 
         window.procesarReporte = () => {
-            if(!document.getElementById('in-profesional').value) { alert("Completa los datos"); return; }
+            if(!document.getElementById('in-profesional').value || !document.getElementById('in-narrativa-final').value) { alert("Faltan datos o no has pegado la Narrativa Final de la IA"); return; }
             
             const dem = []; document.querySelectorAll('#tbody-edades-dinamico tr').forEach(tr => { const inp = tr.querySelectorAll('.input-demo'); if(inp.length===4) dem.push({grupo: inp[0].dataset.edad, f_nor: parseInt(inp[0].value)||0, f_r: parseInt(inp[1].value)||0, m_nor: parseInt(inp[2].value)||0, m_r: parseInt(inp[3].value)||0}); });
             const ind = []; document.querySelectorAll('.input-indicador-dinamico').forEach(i => { const v = parseInt(i.value)||0; if(v>0) ind.push({label: i.dataset.label, valor: v}); });
@@ -643,12 +778,8 @@
                     const nna = fila.querySelector('.caso-nna').value;
                     if(nna) { 
                         casosProt.push({ 
-                            nna: nna, 
-                            edad: fila.querySelector('.caso-edad').value, 
-                            genero: fila.querySelector('.caso-genero').value, 
-                            cuidador: fila.querySelector('.caso-cuidador').value, 
-                            cuidador_edad: fila.querySelector('.caso-edad-cuidador').value,
-                            cuidador_genero: fila.querySelector('.caso-genero-cuidador').value,
+                            nna: nna, edad: fila.querySelector('.caso-edad').value, genero: fila.querySelector('.caso-genero').value, 
+                            cuidador: fila.querySelector('.caso-cuidador').value, cuidador_edad: fila.querySelector('.caso-edad-cuidador').value, cuidador_genero: fila.querySelector('.caso-genero-cuidador').value,
                             observacion: fila.querySelector('.caso-obs').value 
                         }); 
                     }
@@ -662,11 +793,16 @@
                 ubicacion: `${document.getElementById('in-comunidad').value}, Pq. ${document.getElementById('in-parroquia').value}, Mun. ${document.getElementById('in-municipio').value}, ${document.getElementById('in-estado').value}`,
                 gps: `${document.getElementById('in-lat').value}, ${document.getElementById('in-lng').value}`,
                 total_personas: parseInt(document.getElementById('gran-total').textContent)||0,
-                demografia: dem, indicadores: ind, materiales: mat, foto: fotoBase64,
-                casos_proteccion: casosProt,
+                demografia: dem, indicadores: ind, materiales: mat, foto: fotoBase64, casos_proteccion: casosProt,
                 trans: { gen: document.getElementById('tgg-gen').checked, aap: document.getElementById('tgg-aap').checked, peas: document.getElementById('tgg-peas').checked },
                 vul: { disc: document.getElementById('vul-discapacidad').value, emb: document.getElementById('vul-embarazadas').value, adol_emb: document.getElementById('vul-adol-emb').value, lgbti: document.getElementById('vul-lgbti').value, ind: document.getElementById('vul-indigenas').value },
-                cuali: { receptividad: document.getElementById('in-receptividad').value, logros: document.getElementById('in-logros').value, desafios: document.getElementById('in-desafios').value, testimonio: document.getElementById('in-testimonio').value }
+                cuali: { 
+                    receptividad: document.getElementById('in-receptividad').value, 
+                    logros: document.getElementById('in-logros').value, 
+                    desafios: document.getElementById('in-desafios').value, 
+                    testimonio: document.getElementById('in-testimonio').value,
+                    narrativa_ia: document.getElementById('in-narrativa-final').value 
+                }
             };
 
             pintarDocumento(reporteActual); cambiarPista('documento');
@@ -687,19 +823,17 @@
                 h += `</tbody></table>`;
             }
 
-            h += `<h3 class="font-bold text-brand-800 text-sm mb-2 border-b mt-4">ANÁLISIS CUALITATIVO Y RESUMEN</h3><div class="text-sm text-justify mb-6 bg-slate-50 p-4 rounded text-slate-700 space-y-3">
-                <p>Durante la actividad de <strong>${data.actividad}</strong>, se alcanzó a <strong>${data.total_personas}</strong> personas. Vulnerabilidades: Disc (${data.vul.disc}), Emb/Lact (${data.vul.emb}), Adol. Emb (${data.vul.adol_emb}), LGBTI (${data.vul.lgbti}), Indígenas (${data.vul.ind}).</p>
-                <p><strong>Termómetro:</strong> ${data.cuali.receptividad}</p>
-                <p><strong>Logros:</strong> ${data.cuali.logros}</p>
-                <p><strong>Desafíos:</strong> ${data.cuali.desafios}</p>`;
-            if(data.cuali.testimonio) h += `<p class="italic text-brand-700 border-l-4 border-brand-300 pl-3">"${data.cuali.testimonio}"</p>`;
-            h += `</div>`;
+            // AHORA EL PDF IMPRIME EL RESULTADO DE LA IA DE FORMA PROFESIONAL
+            h += `<h3 class="font-bold text-brand-800 text-sm mb-3 border-b mt-4">NARRATIVA TÉCNICA DE CAMPO</h3>
+                  <div class="text-sm text-justify mb-6 bg-slate-50 p-5 rounded text-slate-800 shadow-sm border border-slate-100 leading-relaxed whitespace-pre-line font-medium">
+                    ${data.cuali.narrativa_ia}
+                  </div>`;
 
-            if(data.foto) h += `<div class="text-center mt-4"><img src="${data.foto}" class="max-h-64 object-contain mx-auto border p-1 rounded shadow-sm"></div>`;
+            if(data.foto) h += `<div class="text-center mt-4 avoid-break"><img src="${data.foto}" class="max-h-64 object-contain mx-auto border p-1 rounded shadow-sm"></div>`;
             document.getElementById('documento-final').innerHTML = h;
         }
 
-        window.generarPDF = () => { html2pdf().set({ margin: 0, filename: `Reporte.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
+        window.generarPDF = () => { html2pdf().set({ margin: [10, 0, 10, 0], filename: `Reporte_${reporteActual.sector}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
 
         window.guardarReporteBD = async () => {
             const btn = document.getElementById('btn-guardar-bd'); btn.innerHTML = 'Guardando...'; btn.disabled = true;
