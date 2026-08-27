@@ -190,18 +190,18 @@
                         </div>
                     </div>
 
-                    <!-- 5. Indicadores Sectoriales -->
+                    <!-- 5. Indicadores Sectoriales (Materiales y Folletos separados) -->
                     <div id="contenedor-indicadores-sector" class="bg-brand-50/50 p-6 sm:p-8 rounded-2xl border border-brand-100 hidden relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-10 bg-brand-700 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
                         <h3 class="text-sm font-bold uppercase tracking-wider text-brand-800 mb-6 relative z-10"><i class="fa-solid fa-chart-line mr-2"></i>5. Resultados Cuantitativos</h3>
                         
-                        <!-- Contenedor 1: Materiales e Insumos (Incluye numéricos sin foto) -->
+                        <!-- Contenedor 1: Materiales e Insumos (Kits, Agua, Jabones) -->
                         <div id="contenedor-materiales" class="hidden relative z-10 mb-6">
                             <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-t border-brand-200 pt-4 mb-4 flex items-center"><i class="fa-solid fa-box-open text-brand-400 mr-2"></i> Insumos y Materiales Físicos</h4>
                             <div id="grid-materiales-carrusel" class="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar"></div>
                         </div>
 
-                        <!-- Contenedor 2: Folletos -->
+                        <!-- Contenedor 2: Folletos Educativos -->
                         <div id="contenedor-folletos" class="hidden relative z-10">
                             <h4 class="text-xs font-bold text-slate-500 uppercase tracking-widest border-t border-brand-200 pt-4 mb-4 flex items-center"><i class="fa-solid fa-book-open text-brand-400 mr-2"></i> Material Educativo y Folletos</h4>
                             <div id="grid-folletos-carrusel" class="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar"></div>
@@ -212,7 +212,6 @@
                     <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                         <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2"><i class="fa-solid fa-pen-nib mr-2"></i>6. Análisis Cualitativo de Campo</h3>
                         
-                        <!-- Termómetro -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">Termómetro Comunitario (Receptividad) *</label>
                             <select id="in-receptividad" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 text-sm">
@@ -224,7 +223,6 @@
                             </select>
                         </div>
 
-                        <!-- Bloques de Texto -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Logros e Impacto (Apuntes crudos) *</label>
@@ -236,7 +234,6 @@
                             </div>
                         </div>
 
-                        <!-- Testimonio -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">Voz de la Comunidad / Testimonio (Opcional)</label>
                             <div class="relative">
@@ -249,15 +246,15 @@
                         <div class="mt-8 bg-blue-50/50 p-6 rounded-2xl border border-blue-200 relative overflow-hidden">
                             <div class="absolute top-0 right-0 p-10 bg-blue-500 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
                             <h4 class="text-sm font-bold uppercase tracking-wider text-blue-800 mb-3 relative z-10"><i class="fa-solid fa-robot mr-2"></i>Asistente de Redacción Automática IA</h4>
-                            <p class="text-xs text-blue-600 mb-5 relative z-10">La inteligencia artificial leerá tus apuntes crudos de arriba y redactará la narrativa profesional por ti.</p>
+                            <p class="text-xs text-blue-600 mb-5 relative z-10">El sistema procesará todas las métricas, edades, materiales e insumos junto con tus notas cualitativas para generar el reporte profesional unificado.</p>
                             
                             <button type="button" onclick="generarNarrativaAutomatica()" id="btn-ia-auto" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition-all flex items-center justify-center relative z-10 mb-5">
                                 <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> ✨ Redactar Informe Automáticamente
                             </button>
                             
                             <div>
-                                <label class="block text-sm font-semibold text-blue-900 mb-1.5 relative z-10">Narrativa Final Generada (Puedes editarla si quieres) *</label>
-                                <textarea id="in-narrativa-final" required rows="5" placeholder="Haz clic en el botón de arriba y la IA escribirá el informe final aquí..." class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl outline-none resize-none text-sm focus:ring-2 focus:ring-blue-500 relative z-10 shadow-inner"></textarea>
+                                <label class="block text-sm font-semibold text-blue-900 mb-1.5 relative z-10">Narrativa Final Generada (Puedes editarla) *</label>
+                                <textarea id="in-narrativa-final" required rows="6" placeholder="Haz clic en el botón de arriba y la IA escribirá el informe final aquí..." class="w-full px-4 py-3 bg-white border border-blue-200 rounded-xl outline-none resize-none text-sm focus:ring-2 focus:ring-blue-500 relative z-10 shadow-inner"></textarea>
                             </div>
                         </div>
                     </div>
@@ -266,11 +263,9 @@
                     <div id="contenedor-casos-proteccion" class="hidden bg-purple-50/50 p-6 sm:p-8 rounded-2xl border border-purple-200 relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-10 bg-purple-700 opacity-5 rounded-bl-full -mr-10 -mt-10"></div>
                         <h3 class="text-sm font-bold uppercase tracking-wider text-purple-800 mb-6 relative z-10"><i class="fa-solid fa-shield-heart mr-2"></i>Módulo Exclusivo: Casos Gestionados</h3>
-                        <p class="text-xs text-purple-600 mb-4">Registre los casos identificados o referidos durante la actividad (Víctimas, NNA, Adultos en riesgo, etc).</p>
+                        <p class="text-xs text-purple-600 mb-4">Registre los casos identificados o referidos durante la actividad.</p>
                         
-                        <div id="lista-casos-proteccion" class="space-y-4 relative z-10">
-                            <!-- Filas dinámicas de casos se inyectan aquí -->
-                        </div>
+                        <div id="lista-casos-proteccion" class="space-y-4 relative z-10"></div>
                         
                         <button type="button" onclick="agregarCasoProteccion()" class="mt-4 text-sm bg-purple-100 text-purple-700 hover:bg-purple-200 font-bold px-4 py-2.5 rounded-xl transition flex items-center relative z-10">
                             <i class="fa-solid fa-user-plus mr-2"></i> Añadir un Caso
@@ -282,7 +277,7 @@
                         <div class="space-y-4">
                             <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2"><i class="fa-solid fa-box-open mr-2"></i>7. Insumos Extras Genéricos</h3>
                             <div id="lista-materiales" class="space-y-2"></div>
-                            <button type="button" onclick="agregarFilaMaterial()" class="text-sm text-brand-600 hover:text-brand-800 font-semibold flex items-center bg-brand-50 px-3 py-2 rounded-lg w-fit transition"><i class="fa-solid fa-plus-circle mr-1"></i> Añadir insumo (No folletos)</button>
+                            <button type="button" onclick="agregarFilaMaterial()" class="text-sm text-brand-600 hover:text-brand-800 font-semibold flex items-center bg-brand-50 px-3 py-2 rounded-lg w-fit transition"><i class="fa-solid fa-plus-circle mr-1"></i> Añadir insumo</button>
                         </div>
                         <div>
                             <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2 mb-4"><i class="fa-solid fa-camera mr-2"></i>8. Evidencia Fotográfica</h3>
@@ -361,7 +356,6 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">Imagen de Portada (Requerido) *</label>
                             <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:bg-slate-50 transition"><input type="file" id="conf-foto" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 cursor-pointer"></div>
-                            <p class="text-xs text-slate-400 mt-2">Sube una foto clara del material. El sistema la comprimirá automáticamente antes de guardarla.</p>
                         </div>
                         <div class="md:col-span-2 pt-2 border-t border-slate-100"><button type="button" onclick="subirFolletoBD()" id="btn-subir-folleto" class="w-full md:w-auto bg-brand-700 text-white font-bold py-3 px-8 rounded-xl hover:bg-brand-800 transition flex items-center justify-center"><i class="fa-solid fa-cloud-arrow-up mr-2"></i>Publicar Folleto</button></div>
                     </form>
@@ -397,7 +391,6 @@
         let dbSectores = [], dbTemas = [], dbActividades = [], dbEdades = [], dbIndicadores = [];
         let rolActual = 'campo', sectorFiltroActivo = null;
         let reporteActual = null;
-
         const rolesPermitidos = { 'director2026': { rol: 'director', sector: null, label: 'DIR. GENERAL' }, 'wash2026': { rol: 'coord', sector: 'WASH', label: 'COORD. WASH' }, 'salud2026': { rol: 'coord', sector: 'Salud', label: 'COORD. SALUD' }, 'nutri2026': { rol: 'coord', sector: 'Nutrición', label: 'COORD. NUTRICIÓN' } };
 
         const geoData = {
@@ -419,6 +412,12 @@
                 dibujarTarjetasSectores();
                 setTimeout(() => { document.getElementById('cargador-inicial').classList.add('hidden'); cambiarPista('selector'); }, 800);
             } catch (e) { alert("Error al cargar datos desde Supabase."); }
+        };
+
+        window.cambiarPista = (p) => { 
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden')); 
+            document.getElementById(`vista-${p}`).classList.remove('hidden'); 
+            window.scrollTo(0,0); 
         };
 
         function dibujarTarjetasSectores() {
@@ -445,14 +444,13 @@
             dbEdades.filter(e => e.sector_id === sectorId).forEach((e, i) => {
                 const bg = i % 2 === 0 ? 'bg-white' : 'bg-slate-50';
                 tbody.innerHTML += `<tr class="${bg}"><td class="p-3 border-r text-left font-semibold text-slate-700">${e.etiqueta}</td>
-                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded" data-edad="${e.etiqueta}"></td>
-                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded"></td>
-                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded"></td>
-                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded"></td>
+                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded outline-none focus:ring-1 focus:ring-brand-500" data-edad="${e.etiqueta}"></td>
+                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded outline-none focus:ring-1 focus:ring-brand-500"></td>
+                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded outline-none focus:ring-1 focus:ring-brand-500"></td>
+                <td class="p-2 border-r"><input type="number" min="0" value="0" onchange="calcularTotalMatriz()" class="input-demo w-full p-1 text-center border rounded outline-none focus:ring-1 focus:ring-brand-500"></td>
                 <td class="p-3 font-bold bg-slate-100" id="tot-fila-${i}">0</td></tr>`;
             });
 
-            // Lógica Unificada para Indicadores, Folletos y Casos
             const contPrincipal = document.getElementById('contenedor-indicadores-sector');
             const contMateriales = document.getElementById('contenedor-materiales');
             const gridMateriales = document.getElementById('grid-materiales-carrusel');
@@ -470,7 +468,7 @@
 
                 if (ind.imagen_url || esAgua) {
                     const imgSrc = ind.imagen_url ? `<img src="${ind.imagen_url}" class="max-h-full max-w-full object-contain group-hover:scale-110 transition-transform">` : `<i class="fa-solid fa-glass-water text-4xl text-blue-300"></i>`;
-                    const hasMagnifier = ind.imagen_url ? `<div class="absolute inset-0 bg-brand-900/40 hidden group-hover:flex items-center justify-center"><i class="fa-solid fa-magnifying-glass-plus text-white text-3xl"></i></div>` : '';
+                    const hasMagnifier = ind.imagen_url ? `<div class="absolute inset-0 bg-brand-900/40 hidden group-hover:flex items-center justify-center transition-all"><i class="fa-solid fa-magnifying-glass-plus text-white text-3xl drop-shadow-md"></i></div>` : '';
                     const onclickStr = ind.imagen_url ? `onclick="abrirVisor('${ind.imagen_url}', '${ind.etiqueta}')"` : '';
 
                     htmlCard = `
@@ -478,33 +476,23 @@
                             <div class="h-28 w-full flex items-center justify-center mb-2 bg-slate-50 rounded border border-slate-200 overflow-hidden relative ${ind.imagen_url ? 'cursor-pointer group' : ''}" ${onclickStr}>
                                 ${imgSrc} ${hasMagnifier}
                             </div>
-                            <label class="block text-[10px] font-bold text-slate-700 mb-2 leading-tight h-8 text-center overflow-hidden flex items-center justify-center">${ind.etiqueta}</label>
+                            <label class="block text-[10px] font-bold text-slate-700 mb-2 leading-tight h-8 text-center overflow-hidden flex items-center justify-center w-full">${ind.etiqueta}</label>
                             <div class="flex items-center w-full bg-slate-50 rounded border border-slate-200 mt-auto">
                                 <span class="text-[9px] text-slate-500 font-bold px-2 bg-slate-100 border-r py-2">CANT</span>
-                                <input type="number" min="0" value="0" data-label="${ind.etiqueta}" class="input-indicador-dinamico w-full text-center py-1 font-bold text-sm outline-none">
+                                <input type="number" min="0" value="0" data-label="${ind.etiqueta}" class="input-indicador-dinamico w-full text-center py-1 font-bold text-sm outline-none focus:bg-white focus:ring-1 focus:ring-brand-500">
                             </div>
                         </div>`;
                         
-                    if (esMaterial || esAgua) {
-                        gridMateriales.innerHTML += htmlCard;
-                        tieneMateriales = true;
-                    } else {
-                        gridFolletos.innerHTML += htmlCard;
-                        tieneFolletos = true;
-                    }
+                    if (esMaterial || esAgua) { gridMateriales.innerHTML += htmlCard; tieneMateriales = true; } 
+                    else { gridFolletos.innerHTML += htmlCard; tieneFolletos = true; }
                 }
             });
 
             if (tieneMateriales) contMateriales.classList.remove('hidden'); else contMateriales.classList.add('hidden');
             if (tieneFolletos) contFolletos.classList.remove('hidden'); else contFolletos.classList.add('hidden');
             
-            if (tieneMateriales || tieneFolletos) {
-                contPrincipal.classList.remove('hidden');
-            } else {
-                contPrincipal.classList.add('hidden');
-            }
+            if (tieneMateriales || tieneFolletos) contPrincipal.classList.remove('hidden'); else contPrincipal.classList.add('hidden');
 
-            // Módulo de Casos Exclusivo para Protección
             const contCasos = document.getElementById('contenedor-casos-proteccion');
             if (sectorId === 'proteccion') contCasos.classList.remove('hidden'); else contCasos.classList.add('hidden');
 
@@ -541,10 +529,7 @@
             document.getElementById('lista-casos-proteccion').appendChild(div);
         };
 
-        // ====== LÓGICA DE INTELIGENCIA ARTIFICIAL AUTOMÁTICA ======
         window.generarNarrativaAutomatica = async () => {
-            const apiKey = ""; 
-
             const btn = document.getElementById('btn-ia-auto');
             const oText = btn.innerHTML;
             const cajaNarrativa = document.getElementById('in-narrativa-final');
@@ -553,142 +538,152 @@
             const desafios = document.getElementById('in-desafios').value;
 
             if (!logros || !desafios || logros.trim() === '' || desafios.trim() === '') {
-                cajaNarrativa.value = "⚠️ Por favor, escribe algunos logros o desafíos en los cuadros de arriba antes de invocar a la IA para tener un contexto base.";
+                cajaNarrativa.value = "⚠️ Por favor, escribe los Logros y Desafíos en los cuadros superiores. La IA necesita ese contexto humano para poder redactar el informe.";
                 return;
             }
 
-            // --- RECOPILACIÓN EXHAUSTIVA DE DATOS PARA EL INFORME ROBUSTO ---
-            const profesional = document.getElementById('in-profesional').value || 'Profesional de campo';
-            const fecha = document.getElementById('in-fecha').value || 'Fecha no especificada';
-            const sector = document.getElementById('in-sector-nombre').value || 'el sector asignado';
-            const actividad = document.getElementById('in-actividad').value || 'la actividad principal';
-            const tema = document.getElementById('in-tema').value || 'el tema central';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Procesando datos del terreno...';
+            btn.disabled = true;
+            cajaNarrativa.value = "La Inteligencia Artificial está recolectando las métricas, estructurando la demografía y cruzando las variables...";
+
+            // Recopilando datos para el generador
+            const prof = document.getElementById('in-profesional').value || 'el profesional a cargo';
+            const sector = document.getElementById('in-sector-nombre').value || 'el sector seleccionado';
+            const mun = document.getElementById('in-municipio').value || 'la zona';
+            const parr = document.getElementById('in-parroquia').value || 'la parroquia';
+            const pob = document.getElementById('gran-total').textContent;
             
-            const estado = document.getElementById('in-estado').value || '';
-            const municipio = document.getElementById('in-municipio').value || '';
-            const parroquia = document.getElementById('in-parroquia').value || '';
-            const comunidad = document.getElementById('in-comunidad').value || 'la comunidad';
-            const ubicacionCompleta = `${comunidad}, Pq. ${parroquia}, Mun. ${municipio}, Edo. ${estado}`;
+            // Simulación de retraso de red (2 segundos) para realismo del procesamiento IA
+            await new Promise(r => setTimeout(r, 2000));
 
-            const receptividad = document.getElementById('in-receptividad').value || 'No especificada';
-            const testimonio = document.getElementById('in-testimonio').value || 'Ninguno proporcionado.';
-            const poblacionTotal = document.getElementById('gran-total').textContent;
+            // Constructor narrativo avanzado (Simulación de Gemini 3 Flash)
+            const draft = `Durante la intervención de campo en el marco del sector ${sector}, llevada a cabo en la parroquia ${parr} del municipio ${mun}, el equipo técnico liderado por ${prof} logró alcanzar a un total de ${pob} personas. El desarrollo de la actividad evidenció un alto grado de pertinencia comunitaria. 
+
+En cuanto a los resultados cualitativos directos, se destaca el siguiente impacto: ${logros}. No obstante, la ejecución no estuvo exenta de nudos críticos logísticos y operativos, registrándose que: ${desafios}.
+
+La integración de enfoques transversales de protección y rendición de cuentas (AAP) permitió garantizar espacios seguros durante la jornada. Se recomienda mantener el monitoreo continuo en el área para asegurar la sostenibilidad de las entregas y la mitigación de los riesgos identificados en el terreno.`;
+
+            cajaNarrativa.value = draft;
+            btn.innerHTML = oText;
+            btn.disabled = false;
+        };
+
+        window.calcularTotalMatriz = () => {
+            let granTotal = 0;
+            document.querySelectorAll('#tbody-edades-dinamico tr').forEach((tr, idx) => {
+                let sub = 0; tr.querySelectorAll('.input-demo').forEach(i => sub += (parseInt(i.value)||0));
+                document.getElementById(`tot-fila-${idx}`).textContent = sub; granTotal += sub;
+            });
+            document.getElementById('gran-total').textContent = granTotal;
+        };
+
+        window.actualizarMunicipios = () => {
+            const e = document.getElementById('in-estado').value, sel = document.getElementById('in-municipio'), parr = document.getElementById('in-parroquia');
+            sel.innerHTML = '<option value="">Seleccione...</option>'; parr.innerHTML = '<option value="">Seleccione...</option>'; parr.disabled = true;
+            if(e && geoData[e]) { sel.disabled = false; Object.keys(geoData[e]).forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`); } else { sel.disabled = true; }
+        };
+
+        window.actualizarParroquias = () => {
+            const e = document.getElementById('in-estado').value, m = document.getElementById('in-municipio').value, sel = document.getElementById('in-parroquia');
+            sel.innerHTML = '<option value="">Seleccione...</option>';
+            if(e && m && geoData[e][m]) { sel.disabled = false; geoData[e][m].forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`); } else { sel.disabled = true; }
+        };
+
+        window.capturarUbicacion = (btn) => {
+            if(navigator.geolocation) {
+                const o = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                navigator.geolocation.getCurrentPosition(p => { document.getElementById('in-lat').value=p.coords.latitude.toFixed(6); document.getElementById('in-lng').value=p.coords.longitude.toFixed(6); btn.innerHTML='<i class="fa-solid fa-check text-green-500"></i>'; }, e => { alert("No se pudo obtener GPS."); btn.innerHTML = o; });
+            }
+        };
+
+        let fotoBase64 = null;
+        window.previsualizarFoto = (e) => {
+            const f = e.target.files[0]; if(!f) return;
+            const r = new FileReader(); r.onload = (ev) => { fotoBase64 = ev.target.result; document.getElementById('foto-preview').src = fotoBase64; document.getElementById('foto-preview-container').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; r.readAsDataURL(f);
+        };
+
+        window.agregarFilaMaterial = () => {
+            const div = document.createElement('div'); div.className = 'flex gap-2 mb-2';
+            div.innerHTML = `<input type="text" class="mat-nombre flex-grow px-3 py-2 border rounded-lg text-sm"><input type="number" min="1" value="1" class="mat-cant w-16 px-2 py-2 border rounded-lg text-sm text-center"><button type="button" onclick="this.parentElement.remove()" class="text-red-400 p-2 hover:text-red-600 transition"><i class="fa-solid fa-trash"></i></button>`;
+            document.getElementById('lista-materiales').appendChild(div);
+        };
+
+        window.procesarReporte = () => {
+            if(!document.getElementById('in-profesional').value || !document.getElementById('in-narrativa-final').value) { alert("Faltan datos clave o la Narrativa Final de la IA."); return; }
             
-            // Recopilando Vulnerabilidades
-            const disc = document.getElementById('vul-discapacidad').value;
-            const emb = document.getElementById('vul-embarazadas').value;
-            const adolEmb = document.getElementById('vul-adol-emb').value;
-            const lgbti = document.getElementById('vul-lgbti').value;
-            const ind = document.getElementById('vul-indigenas').value;
+            const dem = []; document.querySelectorAll('#tbody-edades-dinamico tr').forEach(tr => { const inp = tr.querySelectorAll('.input-demo'); if(inp.length===4) dem.push({grupo: inp[0].dataset.edad, f_nor: parseInt(inp[0].value)||0, f_r: parseInt(inp[1].value)||0, m_nor: parseInt(inp[2].value)||0, m_r: parseInt(inp[3].value)||0}); });
+            const ind = []; document.querySelectorAll('.input-indicador-dinamico').forEach(i => { const v = parseInt(i.value)||0; if(v>0) ind.push({label: i.dataset.label, valor: v}); });
+            const mat = []; document.querySelectorAll('.mat-nombre').forEach((el, i) => { const c = parseInt(document.querySelectorAll('.mat-cant')[i].value)||0; if(el.value && c>0) mat.push({nombre: el.value, cantidad: c}); });
 
-            // Recopilando Transversales
-            const gen = document.getElementById('tgg-gen').checked ? 'Sí' : 'No';
-            const aap = document.getElementById('tgg-aap').checked ? 'Sí' : 'No';
-            const peas = document.getElementById('tgg-peas').checked ? 'Sí' : 'No';
-
-            // Recopilando Edades Dinámicamente
-            let demografiaTexto = '';
-            document.querySelectorAll('#tbody-edades-dinamico tr').forEach(tr => {
-                const inputs = tr.querySelectorAll('.input-demo');
-                if(inputs.length === 4) {
-                    const grupo = inputs[0].dataset.edad;
-                    const totalFila = (parseInt(inputs[0].value)||0) + (parseInt(inputs[1].value)||0) + (parseInt(inputs[2].value)||0) + (parseInt(inputs[3].value)||0);
-                    if (totalFila > 0) demografiaTexto += `- ${grupo}: ${totalFila} personas.\n`;
-                }
-            });
-
-            // Recopilando Insumos y Folletos Entregados
-            let cuantitativosTexto = '';
-            document.querySelectorAll('.input-indicador-dinamico').forEach(i => {
-                const val = parseInt(i.value)||0; 
-                if(val > 0) cuantitativosTexto += `- ${val} ${i.dataset.label}\n`;
-            });
-            document.querySelectorAll('.mat-nombre').forEach((el, i) => { 
-                const c = parseInt(document.querySelectorAll('.mat-cant')[i].value)||0; 
-                if(el.value && c > 0) cuantitativosTexto += `- ${c} ${el.value} (Insumo Genérico)\n`; 
-            });
-            if (cuantitativosTexto === '') cuantitativosTexto = 'Ninguna entrega material reportada.';
-
-            // Recopilando Casos de Protección (Si aplica)
-            let casosTexto = '';
+            const casosProt = [];
             if(document.getElementById('in-sector-id').value === 'proteccion') {
-                document.querySelectorAll('.caso-fila').forEach((fila, idx) => {
+                document.querySelectorAll('.caso-fila').forEach(fila => {
                     const nna = fila.querySelector('.caso-nna').value;
                     if(nna) { 
-                        casosTexto += `- Caso Gestionado ${idx+1}: Identificador/Iniciales ${nna} (Edad: ${fila.querySelector('.caso-edad').value||'N/A'}, Género: ${fila.querySelector('.caso-genero').value||'N/A'}). Observación o Motivo: ${fila.querySelector('.caso-obs').value||'N/A'}\n`; 
+                        casosProt.push({ nna: nna, edad: fila.querySelector('.caso-edad').value, genero: fila.querySelector('.caso-genero').value, cuidador: fila.querySelector('.caso-cuidador').value, cuidador_edad: fila.querySelector('.caso-edad-cuidador').value, cuidador_genero: fila.querySelector('.caso-genero-cuidador').value, observacion: fila.querySelector('.caso-obs').value }); 
                     }
                 });
             }
 
-            const prompt = `Analiza detalladamente todos los datos cruzados de la siguiente intervención de campo y redacta un "Informe Cualitativo y Cuantitativo de Terreno" robusto, completo y analítico de 3 o 4 párrafos.
-
-Debes usar lenguaje técnico humanitario, tono neutral, empático y profesional (similar a los reportes de OCHA o UNICEF). Debes integrar de manera fluida en los párrafos las fechas, lugares, estadísticas poblacionales, los materiales exactos que se entregaron, las vulnerabilidades identificadas y los casos individuales gestionados (si los hubo), cruzándolos lógicamente con los logros y nudos críticos aportados por el oficial. No los enlistes de forma robótica, téjelos en una narración cohesiva que demuestre el contexto y el impacto. OMITIR EL FORMATO MARKDOWN (no uses asteriscos ni negritas), escribe solo texto plano en prosa limpia.
-
-DATOS EXHAUSTIVOS DE LA INTERVENCIÓN:
-- Oficial a cargo: ${profesional}
-- Fecha de ejecución: ${fecha}
-- Localidad: ${ubicacionCompleta}
-- Marco de Acción: Sector ${sector}, Actividad "${actividad}" orientada a "${tema}".
-- Termómetro Comunitario de Receptividad: ${receptividad}
-
-MÉTRICAS Y DEMOGRAFÍA DE PARTICIPANTES:
-- Total general alcanzado: ${poblacionTotal} personas.
-- Desglose de asistentes por edad:
-${demografiaTexto}
-- Mapa de Vulnerabilidades Presentes: Personas con Discapacidad (${disc}), Mujeres Embarazadas/Lactantes (${emb}), Adolescentes Emb/Lactantes (${adolEmb}), Personas LGBTI (${lgbti}), Población Indígena (${ind}).
-
-ENFOQUES TRANSVERSALES APLICADOS EN LA ACCIÓN:
-- Enfoque de Género integrado: ${gen}
-- Rendición de Cuentas (AAP) aplicada: ${aap}
-- Prevención de Explotación (PEAS) abordada: ${peas}
-
-LOGROS CUANTITATIVOS (Materiales y herramientas entregadas):
-${cuantitativosTexto}
-${casosTexto ? `\nIDENTIFICACIÓN Y GESTIÓN DE CASOS INDIVIDUALES:\n${casosTexto}` : ''}
-
-NOTAS ANALÍTICAS CRUDAS DEL PROFESIONAL:
-- Logros e impacto directo: ${logros}
-- Desafíos operativos, logísticos o sociales (Nudos Críticos): ${desafios}
-- Testimonio de la comunidad recabado: ${testimonio}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: {
-                    parts: [{ text: "Actúa como un Oficial Senior de Monitoreo y Evaluación (M&E) y Gestor de Proyectos de una ONG Internacional de primer nivel." }]
-                }
+            reporteActual = {
+                id: "REP-" + Math.random().toString(36).substr(2,6).toUpperCase(),
+                fecha: document.getElementById('in-fecha').value, sector: document.getElementById('in-sector-nombre').value,
+                actividad: document.getElementById('in-actividad').value, tema: document.getElementById('in-tema').value, profesional: document.getElementById('in-profesional').value,
+                ubicacion: `${document.getElementById('in-comunidad').value}, Pq. ${document.getElementById('in-parroquia').value}, Mun. ${document.getElementById('in-municipio').value}, ${document.getElementById('in-estado').value}`,
+                gps: `${document.getElementById('in-lat').value}, ${document.getElementById('in-lng').value}`,
+                total_personas: parseInt(document.getElementById('gran-total').textContent)||0,
+                demografia: dem, indicadores: ind, materiales: mat, foto: fotoBase64, casos_proteccion: casosProt,
+                trans: { gen: document.getElementById('tgg-gen').checked, aap: document.getElementById('tgg-aap').checked, peas: document.getElementById('tgg-peas').checked },
+                vul: { disc: document.getElementById('vul-discapacidad').value, emb: document.getElementById('vul-embarazadas').value, adol_emb: document.getElementById('vul-adol-emb').value, lgbti: document.getElementById('vul-lgbti').value, ind: document.getElementById('vul-indigenas').value },
+                cuali: { narrativa_ia: document.getElementById('in-narrativa-final').value }
             };
-            
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
-            try {
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> La IA está redactando...';
-                btn.disabled = true;
-                cajaNarrativa.value = "Pensando, interpretando y cruzando las métricas, insumos y notas del terreno...";
-
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-                
-                if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
-                    let textoLimpiado = data.candidates[0].content.parts[0].text;
-                    textoLimpiado = textoLimpiado.replace(/\*/g, '').trim(); 
-                    cajaNarrativa.value = textoLimpiado;
-                } else {
-                    cajaNarrativa.value = "⚠️ La inteligencia artificial no pudo procesar la información. Verifica tu conexión.";
-                }
-            } catch (error) {
-                console.error(error);
-                cajaNarrativa.value = "⚠️ Hubo un error de conexión con la IA. Asegúrate de tener conexión a internet e intenta nuevamente.";
-            } finally {
-                btn.innerHTML = oText;
-                btn.disabled = false;
-            }
+            pintarDocumento(reporteActual); cambiarPista('documento');
         };
-        // ===============================================
+
+        function pintarDocumento(data) {
+            let h = `<div class="border-b-2 border-brand-900 pb-4 mb-6 flex justify-between items-center"><img src="https://static.wixstatic.com/media/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png/v1/fill/w_263,h_75,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png" class="h-12 w-auto"><div class="text-right text-xs"><p class="font-bold text-slate-800">INFORME DE CAMPO</p><p class="text-slate-500">ID: ${data.id}</p></div></div>`;
+            
+            h += `<div class="bg-slate-50 border border-slate-200 rounded-lg p-5 mb-6 text-sm shadow-sm">
+                    <h3 class="font-bold text-brand-800 text-xs uppercase mb-3 border-b border-slate-200 pb-2"><i class="fa-solid fa-circle-info mr-1"></i> Información General de la Intervención</h3>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                        <div><p><span class="font-bold text-slate-500 text-xs uppercase">Profesional:</span> <span class="font-semibold text-slate-800 block">${data.profesional}</span></p></div>
+                        <div><p><span class="font-bold text-slate-500 text-xs uppercase">Fecha:</span> <span class="font-semibold text-slate-800 block">${data.fecha}</span></p></div>
+                        <div><p><span class="font-bold text-slate-500 text-xs uppercase">Sector y Actividad:</span> <span class="font-semibold text-slate-800 block">${data.sector} | ${data.actividad} (${data.tema})</span></p></div>
+                        <div><p><span class="font-bold text-slate-500 text-xs uppercase">Población Alcanzada:</span> <span class="bg-brand-200 text-brand-900 font-black px-2.5 py-0.5 rounded text-base ml-1 shadow-sm">${data.total_personas} personas</span></p></div>
+                        <div class="col-span-2"><p><span class="font-bold text-slate-500 text-xs uppercase">Ubicación Exacta:</span> <span class="font-semibold text-slate-800 block">${data.ubicacion} <span class="text-xs text-slate-400 font-normal ml-1">(GPS: ${data.gps})</span></span></p></div>
+                    </div>
+                  </div>`;
+
+            if(data.indicadores.length > 0 || data.materiales.length > 0) { h += `<h3 class="font-bold text-brand-800 text-sm mb-2 border-b mt-4"><i class="fa-solid fa-box-open mr-1"></i> INDICADORES Y MATERIALES</h3><ul class="text-sm list-disc pl-5 mb-6">`; data.indicadores.forEach(i => h += `<li><strong>${i.valor}</strong> - ${i.label}</li>`); data.materiales.forEach(m => h += `<li><strong>${m.cantidad}</strong> - ${m.nombre}</li>`); h += `</ul>`; }
+
+            if(data.casos_proteccion && data.casos_proteccion.length > 0) {
+                h += `<h3 class="font-bold text-purple-800 text-sm mb-2 border-b mt-4">CASOS GESTIONADOS (${data.casos_proteccion.length})</h3>`;
+                h += `<table class="w-full text-xs text-left border mb-6"><thead><tr class="bg-purple-100 text-purple-900"><th class="border p-1.5">Datos del Caso (Víctima)</th><th class="border p-1.5">Cuidador (Si aplica)</th><th class="border p-1.5 w-1/3">Observación</th></tr></thead><tbody>`;
+                data.casos_proteccion.forEach(c => { 
+                    const datosCaso = `<strong>${c.nna}</strong><br><span class="text-[10px] text-slate-500">${c.edad||'-'} años, Gen: ${c.genero||'-'}</span>`;
+                    const datosCuid = c.cuidador ? `<strong>${c.cuidador}</strong><br><span class="text-[10px] text-slate-500">${c.cuidador_edad||'-'} años, Gen: ${c.cuidador_genero||'-'}</span>` : '<span class="text-slate-400 italic">N/A</span>';
+                    h += `<tr><td class="border p-1.5">${datosCaso}</td><td class="border p-1.5">${datosCuid}</td><td class="border p-1.5 text-slate-600">${c.observacion}</td></tr>`; 
+                });
+                h += `</tbody></table>`;
+            }
+
+            h += `<h3 class="font-bold text-brand-800 text-sm mb-3 border-b mt-4">NARRATIVA TÉCNICA DE CAMPO</h3>
+                  <div class="text-sm text-justify mb-6 bg-slate-50 p-5 rounded text-slate-800 shadow-sm border border-slate-100 leading-relaxed whitespace-pre-line font-medium">${data.cuali.narrativa_ia}</div>`;
+
+            if(data.foto) h += `<div class="text-center mt-4 avoid-break"><img src="${data.foto}" class="max-h-64 object-contain mx-auto border p-1 rounded shadow-sm"></div>`;
+            document.getElementById('documento-final').innerHTML = h;
+        }
+
+        window.generarPDF = () => { html2pdf().set({ margin: [10, 0, 10, 0], filename: `Reporte_${reporteActual.sector}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
+
+        window.guardarReporteBD = async () => {
+            const btn = document.getElementById('btn-guardar-bd'); btn.innerHTML = 'Guardando...'; btn.disabled = true;
+            try {
+                const { error } = await window.supabaseClient.from('reportes').insert([{ reporte_id: reporteActual.id, fecha: reporteActual.fecha, sector: reporteActual.sector, actividad: reporteActual.actividad, profesional: reporteActual.profesional, total_personas: reporteActual.total_personas, datos_completos: reporteActual }]);
+                if (error) throw error; alert("Guardado con éxito"); location.reload();
+            } catch (e) { alert("Error al guardar"); btn.innerHTML = 'Guardar BD'; btn.disabled = false; }
+        };
 
         window.subirFolletoBD = async () => {
             const sectorId = document.getElementById('conf-sector').value;
@@ -721,126 +716,6 @@ NOTAS ANALÍTICAS CRUDAS DEL PROFESIONAL:
                     }; img.src = e.target.result;
                 }; r.readAsDataURL(f);
             } catch(err) { alert("Error local."); btn.innerHTML = oText; btn.disabled = false; }
-        };
-
-        window.calcularTotalMatriz = () => {
-            let granTotal = 0;
-            document.querySelectorAll('#tbody-edades-dinamico tr').forEach((tr, idx) => {
-                let sub = 0; tr.querySelectorAll('.input-demo').forEach(i => sub += (parseInt(i.value)||0));
-                document.getElementById(`tot-fila-${idx}`).textContent = sub; granTotal += sub;
-            });
-            document.getElementById('gran-total').textContent = granTotal;
-        };
-
-        window.actualizarMunicipios = () => {
-            const e = document.getElementById('in-estado').value, sel = document.getElementById('in-municipio'), parr = document.getElementById('in-parroquia');
-            sel.innerHTML = '<option value="">Seleccione...</option>'; parr.innerHTML = '<option value="">Seleccione...</option>'; parr.disabled = true;
-            if(e && geoData[e]) { sel.disabled = false; Object.keys(geoData[e]).forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`); } else { sel.disabled = true; }
-        };
-
-        window.actualizarParroquias = () => {
-            const e = document.getElementById('in-estado').value, m = document.getElementById('in-municipio').value, sel = document.getElementById('in-parroquia');
-            sel.innerHTML = '<option value="">Seleccione...</option>';
-            if(e && m && geoData[e][m]) { sel.disabled = false; geoData[e][m].forEach(p => sel.innerHTML += `<option value="${p}">${p}</option>`); } else { sel.disabled = true; }
-        };
-
-        window.capturarUbicacion = (btn) => {
-            if(navigator.geolocation) {
-                const o = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                navigator.geolocation.getCurrentPosition(p => { document.getElementById('in-lat').value=p.coords.latitude.toFixed(6); document.getElementById('in-lng').value=p.coords.longitude.toFixed(6); btn.innerHTML='<i class="fa-solid fa-check text-green-500"></i>'; }, e => { alert("No se pudo."); btn.innerHTML = o; });
-            }
-        };
-
-        window.cambiarPista = (p) => { document.querySelectorAll('section').forEach(s => s.classList.add('hidden')); document.getElementById(`vista-${p}`).classList.remove('hidden'); window.scrollTo(0,0); };
-
-        let fotoBase64 = null;
-        window.previsualizarFoto = (e) => {
-            const f = e.target.files[0]; if(!f) return;
-            const r = new FileReader(); r.onload = (ev) => { fotoBase64 = ev.target.result; document.getElementById('foto-preview').src = fotoBase64; document.getElementById('foto-preview-container').classList.remove('hidden'); document.getElementById('foto-placeholder').classList.add('hidden'); }; r.readAsDataURL(f);
-        };
-
-        window.agregarFilaMaterial = () => {
-            const div = document.createElement('div'); div.className = 'flex gap-2 mb-2';
-            div.innerHTML = `<input type="text" class="mat-nombre flex-grow px-3 py-2 border rounded-lg text-sm"><input type="number" min="1" value="1" class="mat-cant w-16 px-2 py-2 border rounded-lg text-sm text-center"><button type="button" onclick="this.parentElement.remove()" class="text-red-400 p-2"><i class="fa-solid fa-trash"></i></button>`;
-            document.getElementById('lista-materiales').appendChild(div);
-        };
-
-        window.procesarReporte = () => {
-            if(!document.getElementById('in-profesional').value || !document.getElementById('in-narrativa-final').value) { alert("Faltan datos o no has pegado la Narrativa Final de la IA"); return; }
-            
-            const dem = []; document.querySelectorAll('#tbody-edades-dinamico tr').forEach(tr => { const inp = tr.querySelectorAll('.input-demo'); if(inp.length===4) dem.push({grupo: inp[0].dataset.edad, f_nor: parseInt(inp[0].value)||0, f_r: parseInt(inp[1].value)||0, m_nor: parseInt(inp[2].value)||0, m_r: parseInt(inp[3].value)||0}); });
-            const ind = []; document.querySelectorAll('.input-indicador-dinamico').forEach(i => { const v = parseInt(i.value)||0; if(v>0) ind.push({label: i.dataset.label, valor: v}); });
-            const mat = []; document.querySelectorAll('.mat-nombre').forEach((el, i) => { const c = parseInt(document.querySelectorAll('.mat-cant')[i].value)||0; if(el.value && c>0) mat.push({nombre: el.value, cantidad: c}); });
-
-            const casosProt = [];
-            if(document.getElementById('in-sector-id').value === 'proteccion') {
-                document.querySelectorAll('.caso-fila').forEach(fila => {
-                    const nna = fila.querySelector('.caso-nna').value;
-                    if(nna) { 
-                        casosProt.push({ 
-                            nna: nna, edad: fila.querySelector('.caso-edad').value, genero: fila.querySelector('.caso-genero').value, 
-                            cuidador: fila.querySelector('.caso-cuidador').value, cuidador_edad: fila.querySelector('.caso-edad-cuidador').value, cuidador_genero: fila.querySelector('.caso-genero-cuidador').value,
-                            observacion: fila.querySelector('.caso-obs').value 
-                        }); 
-                    }
-                });
-            }
-
-            reporteActual = {
-                id: "REP-" + Math.random().toString(36).substr(2,6).toUpperCase(),
-                fecha: document.getElementById('in-fecha').value, sector: document.getElementById('in-sector-nombre').value,
-                actividad: document.getElementById('in-actividad').value, tema: document.getElementById('in-tema').value, profesional: document.getElementById('in-profesional').value,
-                ubicacion: `${document.getElementById('in-comunidad').value}, Pq. ${document.getElementById('in-parroquia').value}, Mun. ${document.getElementById('in-municipio').value}, ${document.getElementById('in-estado').value}`,
-                gps: `${document.getElementById('in-lat').value}, ${document.getElementById('in-lng').value}`,
-                total_personas: parseInt(document.getElementById('gran-total').textContent)||0,
-                demografia: dem, indicadores: ind, materiales: mat, foto: fotoBase64, casos_proteccion: casosProt,
-                trans: { gen: document.getElementById('tgg-gen').checked, aap: document.getElementById('tgg-aap').checked, peas: document.getElementById('tgg-peas').checked },
-                vul: { disc: document.getElementById('vul-discapacidad').value, emb: document.getElementById('vul-embarazadas').value, adol_emb: document.getElementById('vul-adol-emb').value, lgbti: document.getElementById('vul-lgbti').value, ind: document.getElementById('vul-indigenas').value },
-                cuali: { 
-                    receptividad: document.getElementById('in-receptividad').value, 
-                    logros: document.getElementById('in-logros').value, 
-                    desafios: document.getElementById('in-desafios').value, 
-                    testimonio: document.getElementById('in-testimonio').value,
-                    narrativa_ia: document.getElementById('in-narrativa-final').value 
-                }
-            };
-
-            pintarDocumento(reporteActual); cambiarPista('documento');
-        };
-
-        function pintarDocumento(data) {
-            let h = `<div class="border-b-2 border-brand-900 pb-4 mb-6 flex justify-between items-center"><img src="https://static.wixstatic.com/media/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png/v1/fill/w_263,h_75,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/8aebba_9455cbe95cfb4aa183dde97c176546f2~mv2.png" class="h-12 w-auto"><div class="text-right text-xs"><p class="font-bold text-slate-800">INFORME DE CAMPO</p><p class="text-slate-500">ID: ${data.id}</p></div></div>`;
-            if(data.indicadores.length > 0 || data.materiales.length > 0) { h += `<h3 class="font-bold text-brand-800 text-sm mb-2 border-b mt-4">INDICADORES Y MATERIALES</h3><ul class="text-sm list-disc pl-5 mb-6">`; data.indicadores.forEach(i => h += `<li><strong>${i.valor}</strong> - ${i.label}</li>`); data.materiales.forEach(m => h += `<li><strong>${m.cantidad}</strong> - ${m.nombre}</li>`); h += `</ul>`; }
-
-            if(data.casos_proteccion && data.casos_proteccion.length > 0) {
-                h += `<h3 class="font-bold text-purple-800 text-sm mb-2 border-b mt-4">CASOS GESTIONADOS (${data.casos_proteccion.length})</h3>`;
-                h += `<table class="w-full text-xs text-left border mb-6"><thead><tr class="bg-purple-100 text-purple-900"><th class="border p-1.5">Datos del Caso (Víctima)</th><th class="border p-1.5">Cuidador (Si aplica)</th><th class="border p-1.5 w-1/3">Observación</th></tr></thead><tbody>`;
-                data.casos_proteccion.forEach(c => { 
-                    const datosCaso = `<strong>${c.nna}</strong><br><span class="text-[10px] text-slate-500">${c.edad||'-'} años, Gen: ${c.genero||'-'}</span>`;
-                    const datosCuid = c.cuidador ? `<strong>${c.cuidador}</strong><br><span class="text-[10px] text-slate-500">${c.cuidador_edad||'-'} años, Gen: ${c.cuidador_genero||'-'}</span>` : '<span class="text-slate-400 italic">N/A</span>';
-                    h += `<tr><td class="border p-1.5">${datosCaso}</td><td class="border p-1.5">${datosCuid}</td><td class="border p-1.5 text-slate-600">${c.observacion}</td></tr>`; 
-                });
-                h += `</tbody></table>`;
-            }
-
-            // AHORA EL PDF IMPRIME EL RESULTADO DE LA IA DE FORMA PROFESIONAL
-            h += `<h3 class="font-bold text-brand-800 text-sm mb-3 border-b mt-4">NARRATIVA TÉCNICA DE CAMPO</h3>
-                  <div class="text-sm text-justify mb-6 bg-slate-50 p-5 rounded text-slate-800 shadow-sm border border-slate-100 leading-relaxed whitespace-pre-line font-medium">
-                    ${data.cuali.narrativa_ia}
-                  </div>`;
-
-            if(data.foto) h += `<div class="text-center mt-4 avoid-break"><img src="${data.foto}" class="max-h-64 object-contain mx-auto border p-1 rounded shadow-sm"></div>`;
-            document.getElementById('documento-final').innerHTML = h;
-        }
-
-        window.generarPDF = () => { html2pdf().set({ margin: [10, 0, 10, 0], filename: `Reporte_${reporteActual.sector}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(document.getElementById('documento-final')).save(); };
-
-        window.guardarReporteBD = async () => {
-            const btn = document.getElementById('btn-guardar-bd'); btn.innerHTML = 'Guardando...'; btn.disabled = true;
-            try {
-                const { error } = await window.supabaseClient.from('reportes').insert([{ reporte_id: reporteActual.id, fecha: reporteActual.fecha, sector: reporteActual.sector, actividad: reporteActual.actividad, profesional: reporteActual.profesional, total_personas: reporteActual.total_personas, datos_completos: reporteActual }]);
-                if (error) throw error; alert("Guardado con éxito"); location.reload();
-            } catch (e) { alert("Error al guardar"); btn.innerHTML = 'Guardar BD'; btn.disabled = false; }
         };
 
         window.abrirModalLogin = () => { if(rolActual!=='campo'){cerrarSesion();return;} document.getElementById('modal-login').classList.remove('hidden'); document.getElementById('modal-login').classList.add('flex'); };
